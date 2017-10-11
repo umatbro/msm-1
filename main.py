@@ -1,25 +1,30 @@
 import sys
 import pygame
+from time import sleep
 from grain_field import GrainField
-
 
 pygame.init()
 
-WIDTH = 640
-HEIGHT = 480
+X_SIZE = 20
+Y_SIZE = 10
+resolution = 50
+
+WIDTH = X_SIZE * resolution
+HEIGHT = Y_SIZE * resolution
 MAX_FRAMES = 60
 
 # create screen
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption('Grain field')
 
 # create clock
 clock = pygame.time.Clock()
 total_time = 0
 
 # field
-grain_field = GrainField(screen, WIDTH, HEIGHT)
-grain_field.set_grain_state(100, 100, 20)
-screen.fill((255, 255, 255))
+grain_field = GrainField(WIDTH/resolution, HEIGHT/resolution, resolution)
+grain_field.set_grain_state(3, 3, 1)
+screen.fill((0, 0, 0))
 
 # main loop
 while 1337:
@@ -31,8 +36,7 @@ while 1337:
             sys.exit(0)
 
     total_time += clock.tick(MAX_FRAMES)
-#    screen.fill((255, 255, 255))
 
     m_pos = pygame.mouse.get_pos()
-    grain_field.display()
+    grain_field.display(screen)
     pygame.display.update()

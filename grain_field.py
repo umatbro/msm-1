@@ -1,12 +1,20 @@
 import pygame
+
+from color import Color
 from grain import Grain
 
 
 class GrainField:
-    def __init__(self, screen, x_size, y_size):
-        self.screen = screen
+    """
+    :ivar resolution: number of pixels in square side
+    """
+    def __init__(self, x_size, y_size, resolution=10):
+        if type(x_size) or type(y_size) is float:
+            x_size = int(x_size)
+            y_size = int(y_size)
         self.width = x_size
         self.height = y_size
+        self.resolution = resolution
 
         # init list
         self.field = [[] for x in range(self.width)]
@@ -14,14 +22,7 @@ class GrainField:
         for x in range(self.width):
             self.field[x] = [Grain() for y in range(self.height)]
 
-    # def __init__(self, screen, x_size, y_size):
-    #     self.grains = []
-    #
-    #     for x in range(x_size):
-    #         for y in range(y_size):
-    #             self.grains.append(Grain(x, y))
-
-    def check_neighbours(self, x, y):
+    def von_neumann(self, x, y):
         """
         Check neighbours of given x,y grain
 
@@ -39,8 +40,8 @@ class GrainField:
     def update(self):
         for x, row in enumerate(self.field):
             for y, grain in enumerate(row):
-                neighbours = self.check_neighbours(x, y)
-                if grain.prev_state is None and any(neighbours):
+                neighbours = self.von_neumann(x, y)
+                if grain.prev_state is None and any([neighbour.prev_state for neighbour in neighbours]):
                     # set state to neighbours state
                     for neighbour in neighbours:
                         if bool(neighbour):
@@ -49,11 +50,15 @@ class GrainField:
 
                     grain.prev_state = grain.state
 
-    def display(self):
+    def display(self, screen):
         for x, row in enumerate(self.field):  # type: list
-            for y, grain in enumerate(row):  # type: Grain
-                color = (0, 200, 0) if grain.state is None else (0, 0, 0)
-                pygame.draw.circle(self.screen, color, (x, y), 1)
+            for y, grain in enumerate(row):
+                color = grain.color
+                pygame.draw.rect(screen, color, pygame.Rect(x * self.resolution, y * self.resolution, self.resolution,
+                                                            self.resolution))
+                # if resolution is less than 5 dont draw borders
+                if self.resolution > 5:
+                    pygame.draw.rect(screen, Color.BLACK.value, pygame.Rect(x * self.resolution, y * self.resolution, self.resolution, self.resolution), 1)
 
     def set_grain_state(self, x, y, state):
         grain = self.field[x][y]  # type: Grain
