@@ -1,4 +1,5 @@
 import pygame
+from pygame.math import Vector2
 
 from color import Color
 from grain import Grain
@@ -17,10 +18,8 @@ class GrainField:
         self.resolution = resolution
 
         # init list
-        self.field = [[] for x in range(self.width)]
-
-        for x in range(self.width):
-            self.field[x] = [Grain() for y in range(self.height)]
+        self.field = [[Grain() for y in range(self.height)] for x in range(self.width)]
+        # self.field = [Grain() for x in range(self.height * self.width)]
 
     def von_neumann(self, x, y):
         """
@@ -31,36 +30,45 @@ class GrainField:
         :return: tuple (left, top, right, bottom)
         """
         return (
-            self.field[x-1][y] if x > 0 else None,
-            self.field[x][y+1] if y < self.height-1 else None,
-            self.field[x+1][y] if x < self.width - 1 else None,
-            self.field[x][y-1] if y > 0 else None
+            self.field[x-1][y] if x > 0 else None,                  # left
+            self.field[x][y - 1] if y > 0 else None,                # top
+            self.field[x+1][y] if x < self.width - 1 else None,     # right
+            self.field[x][y+1] if y < self.height - 1 else None,    # bottom
         )
 
-    def update(self):
-        for x, row in enumerate(self.field):
-            for y, grain in enumerate(row):
-                neighbours = self.von_neumann(x, y)
-                if grain.prev_state is None and any([neighbour.prev_state for neighbour in neighbours]):
-                    # set state to neighbours state
-                    for neighbour in neighbours:
-                        if bool(neighbour):
-                            grain.state = neighbour.state
-                            break
-
+    def upd(self):
+        # go through all grains
+        # check state - if prev state is not none go next
+        # if prev state is none check neighbours and set state
+        # update prev state
+        for y in range(self.height):
+            for x in range(self.width):
+                grain = self.field[x][y]
+                if grain.state is not None:
                     grain.prev_state = grain.state
+                    continue
+
+                grain.prev_state = grain.state
+                neighbours = self.von_neumann(x, y)
+                for neighbour in neighbours:  # type: Grain
+                    if neighbour and neighbour.prev_state:
+                        grain.state = neighbour.prev_state
+                        # self.set_grain_state(x, y, neighbour.prev_state)
+                        break
 
     def display(self, screen):
-        for x, row in enumerate(self.field):  # type: list
-            for y, grain in enumerate(row):
+        rect = pygame.Rect(0, 0, self.resolution, self.resolution)
+        for y, row in enumerate(self.field):  # type: list
+            rect.y = y * self.resolution
+            for x, grain in enumerate(row):
                 color = grain.color
-                pygame.draw.rect(screen, color, pygame.Rect(x * self.resolution, y * self.resolution, self.resolution,
-                                                            self.resolution))
+                rect.x = x * self.resolution
+                pygame.draw.rect(screen, color, rect)
                 # if resolution is less than 5 dont draw borders
                 if self.resolution > 5:
-                    pygame.draw.rect(screen, Color.BLACK.value, pygame.Rect(x * self.resolution, y * self.resolution, self.resolution, self.resolution), 1)
+                    pygame.draw.rect(screen, Color.BLACK.value, rect, 1)
 
     def set_grain_state(self, x, y, state):
         grain = self.field[x][y]  # type: Grain
-        grain.prev_state = grain.state
         grain.state = state
+        grain.prev_state = grain.state
