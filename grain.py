@@ -11,9 +11,12 @@ class Grain:
 
     @property
     def color(self):
-        if self.state is 0 or self.state is None:
+        state = self.prev_state
+        if state is 0 or state is None:
             return Color.WHITE.value
-        if self.state is 1:
+        if state is 1:
             return Color.RED.value
-        if self.state is 2:
+        if state is 2:
             return Color.GREEN.value
+        if state is 3:
+            return Color.BLUE.value

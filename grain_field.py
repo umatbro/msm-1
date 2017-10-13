@@ -18,7 +18,7 @@ class GrainField:
         self.resolution = resolution
 
         # init list
-        self.field = [[Grain() for y in range(self.height)] for x in range(self.width)]
+        self.field = [[Grain() for x in range(self.width)] for y in range(self.height)]
         # self.field = [Grain() for x in range(self.height * self.width)]
 
     def von_neumann(self, x, y):
@@ -48,13 +48,19 @@ class GrainField:
                     grain.prev_state = grain.state
                     continue
 
-                grain.prev_state = grain.state
+                # grain.prev_state = grain.state
                 neighbours = self.von_neumann(x, y)
                 for neighbour in neighbours:  # type: Grain
                     if neighbour and neighbour.prev_state:
                         grain.state = neighbour.prev_state
                         # self.set_grain_state(x, y, neighbour.prev_state)
                         break
+                # grain.prev_state = grain.state
+
+        for y in range(self.height):
+            for x in range(self.width):
+                grain = self.field[x][y]
+                grain.prev_state = grain.state
 
     def display(self, screen):
         rect = pygame.Rect(0, 0, self.resolution, self.resolution)
