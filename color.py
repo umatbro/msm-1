@@ -7,6 +7,7 @@ class Color(Enum):
     BLUE = (0, 0, 255)
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
+    GREY = (125, 124, 125)
 
     default_colors = [
         RED,

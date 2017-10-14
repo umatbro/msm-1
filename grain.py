@@ -20,3 +20,4 @@ class Grain:
             return Color.GREEN.value
         if state is 3:
             return Color.BLUE.value
+        return Color.GREY.value

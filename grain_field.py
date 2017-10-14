@@ -47,7 +47,6 @@ class GrainField:
                 if grain.state is not None:
                     grain.prev_state = grain.state
                     continue
-
                 # grain.prev_state = grain.state
                 neighbours = self.von_neumann(x, y)
                 for neighbour in neighbours:  # type: Grain

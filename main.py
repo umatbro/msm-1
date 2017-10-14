@@ -6,9 +6,9 @@ from grain_field import GrainField
 
 pygame.init()
 
-X_SIZE = 200
-Y_SIZE = 200
-resolution = 8
+X_SIZE = 70
+Y_SIZE = 70
+resolution = 6
 
 WIDTH = X_SIZE * resolution
 HEIGHT = Y_SIZE * resolution
@@ -24,11 +24,11 @@ total_time = 0
 
 # field
 grain_field = GrainField(WIDTH/resolution, HEIGHT/resolution, resolution)
-for x in range(3):
+for x in range(50):
     grain_field.set_grain_state(
         random.randint(0, X_SIZE - 1),
         random.randint(0, Y_SIZE - 1),
-        x + 1
+        random.randint(1, 4)
     )
 screen.fill((0, 0, 0))
 
@@ -55,6 +55,8 @@ while 1337:
 
     m_pos = pygame.mouse.get_pos()
     grain_field.upd()
+    # if not grain_field.upd():
+    #     break
     # sleep(1)
     grain_field.display(screen)
     pygame.display.update()
