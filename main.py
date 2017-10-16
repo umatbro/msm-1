@@ -1,14 +1,12 @@
 import sys
 import pygame
-import random
-from time import sleep
-from grain_field import GrainField
+from grain_field import GrainField, random_field
 
 pygame.init()
 
-X_SIZE = 70
-Y_SIZE = 70
-resolution = 6
+X_SIZE = 500
+Y_SIZE = 500
+resolution = 1
 
 WIDTH = X_SIZE * resolution
 HEIGHT = Y_SIZE * resolution
@@ -23,14 +21,16 @@ clock = pygame.time.Clock()
 total_time = 0
 
 # field
-grain_field = GrainField(WIDTH/resolution, HEIGHT/resolution, resolution)
-for x in range(50):
-    grain_field.set_grain_state(
-        random.randint(0, X_SIZE - 1),
-        random.randint(0, Y_SIZE - 1),
-        random.randint(1, 4)
-    )
-screen.fill((0, 0, 0))
+# grain_field = GrainField(X_SIZE, Y_SIZE, resolution)
+# for x in range(70):
+#     grain_field.set_grain_state(
+#         random.randint(0, X_SIZE - 1),
+#         random.randint(0, Y_SIZE - 1),
+#         # random.randint(1, 30)
+#         x + 1
+#     )
+grain_field = random_field(X_SIZE, Y_SIZE, 700,  resolution)
+# screen.fill((0, 0, 0))
 
 # main loop
 while 1337:
@@ -43,13 +43,7 @@ while 1337:
         elif event.type is pygame.KEYDOWN and event.key is pygame.K_SPACE:
             grain_field.upd()
         elif event.type is pygame.KEYDOWN and event.key is pygame.K_r:
-            grain_field = GrainField(WIDTH / resolution, HEIGHT / resolution, resolution)
-            for x in range(3):
-                grain_field.set_grain_state(
-                    random.randint(0, X_SIZE - 1),
-                    random.randint(0, Y_SIZE - 1),
-                    x + 1
-                )
+            grain_field = random_field(X_SIZE, Y_SIZE, 70, resolution)
 
     total_time += clock.tick(MAX_FRAMES)
 

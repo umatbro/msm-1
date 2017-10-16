@@ -1,4 +1,5 @@
 import pygame
+import random
 from pygame.math import Vector2
 
 from color import Color
@@ -18,7 +19,7 @@ class GrainField:
         self.resolution = resolution
 
         # init list
-        self.field = [[Grain() for x in range(self.width)] for y in range(self.height)]
+        self.field = [[Grain() for y in range(self.height)] for x in range(self.width)]
         # self.field = [Grain() for x in range(self.height * self.width)]
 
     def von_neumann(self, x, y):
@@ -41,8 +42,8 @@ class GrainField:
         # check state - if prev state is not none go next
         # if prev state is none check neighbours and set state
         # update prev state
-        for y in range(self.height):
-            for x in range(self.width):
+        for x in range(self.width):
+            for y in range(self.height):
                 grain = self.field[x][y]
                 if grain.state is not None:
                     grain.prev_state = grain.state
@@ -63,17 +64,39 @@ class GrainField:
 
     def display(self, screen):
         rect = pygame.Rect(0, 0, self.resolution, self.resolution)
-        for y, row in enumerate(self.field):  # type: list
-            rect.y = y * self.resolution
-            for x, grain in enumerate(row):
+        for x, col in enumerate(self.field):  # type: list
+            rect.x = x * self.resolution
+            for y, grain in enumerate(col):
                 color = grain.color
-                rect.x = x * self.resolution
+                rect.y = y * self.resolution
                 pygame.draw.rect(screen, color, rect)
                 # if resolution is less than 5 dont draw borders
                 if self.resolution > 5:
                     pygame.draw.rect(screen, Color.BLACK.value, rect, 1)
 
     def set_grain_state(self, x, y, state):
-        grain = self.field[x][y]  # type: Grain
+        grain = self.field[y][x]  # type: Grain
         grain.state = state
         grain.prev_state = grain.state
+
+    def __str__(self):
+        result = '\n'
+        for x in range(self.width):
+            for y in range(self.height):
+                grain = self.field[y][x]
+                result += '{} '.format(grain.state if grain.state is not None else 0)
+            result += '\n'
+        return result
+
+
+def random_field(size_x, size_y, num_of_grains, resolution=6):
+    field = GrainField(size_x, size_y,  resolution)
+    for x in range(num_of_grains):
+        field.set_grain_state(
+            random.randint(0, size_x - 1),
+            random.randint(0, size_y - 1),
+            # random.randint(1, grain_states)
+            x + 1
+        )
+
+    return field
