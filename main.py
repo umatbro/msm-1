@@ -1,12 +1,13 @@
 import sys
 import pygame
 from grain_field import GrainField, random_field
+from files import export_image, export_text
 
 pygame.init()
 
-X_SIZE = 500
-Y_SIZE = 500
-resolution = 1
+X_SIZE = 100
+Y_SIZE = 100
+resolution = 7
 
 WIDTH = X_SIZE * resolution
 HEIGHT = Y_SIZE * resolution
@@ -29,7 +30,7 @@ total_time = 0
 #         # random.randint(1, 30)
 #         x + 1
 #     )
-grain_field = random_field(X_SIZE, Y_SIZE, 700,  resolution)
+grain_field = random_field(X_SIZE, Y_SIZE, 70,  resolution)
 # screen.fill((0, 0, 0))
 
 # main loop
@@ -44,6 +45,10 @@ while 1337:
             grain_field.upd()
         elif event.type is pygame.KEYDOWN and event.key is pygame.K_r:
             grain_field = random_field(X_SIZE, Y_SIZE, 70, resolution)
+        elif event.type is pygame.KEYDOWN and event.key is pygame.K_i:
+            export_image(grain_field)
+        elif event.type is pygame.KEYDOWN and event.key is pygame.K_t:
+            export_text(grain_field)
 
     total_time += clock.tick(MAX_FRAMES)
 

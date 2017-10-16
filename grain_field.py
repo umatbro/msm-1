@@ -1,6 +1,5 @@
 import pygame
 import random
-from pygame.math import Vector2
 
 from color import Color
 from grain import Grain
@@ -20,7 +19,6 @@ class GrainField:
 
         # init list
         self.field = [[Grain() for y in range(self.height)] for x in range(self.width)]
-        # self.field = [Grain() for x in range(self.height * self.width)]
 
     def von_neumann(self, x, y):
         """
@@ -76,8 +74,8 @@ class GrainField:
 
     def set_grain_state(self, x, y, state):
         grain = self.field[y][x]  # type: Grain
-        grain.state = state
         grain.prev_state = grain.state
+        grain.state = state
 
     def __str__(self):
         result = '\n'
