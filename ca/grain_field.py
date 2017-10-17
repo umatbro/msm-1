@@ -1,8 +1,9 @@
-import pygame
 import random
 
-from color import Color
-from grain import Grain
+import pygame
+from ca.color import Color
+
+from ca.grain import Grain
 
 
 class GrainField:
@@ -22,10 +23,8 @@ class GrainField:
 
     def von_neumann(self, x, y):
         """
-        Check neighbours of given x,y grain
+        Check grain neighbours in x, y coordinates
 
-        :param x:
-        :param y:
         :return: tuple (left, top, right, bottom)
         """
         return (
@@ -51,9 +50,7 @@ class GrainField:
                 for neighbour in neighbours:  # type: Grain
                     if neighbour and neighbour.prev_state:
                         grain.state = neighbour.prev_state
-                        # self.set_grain_state(x, y, neighbour.prev_state)
                         break
-                # grain.prev_state = grain.state
 
         for y in range(self.height):
             for x in range(self.width):
@@ -68,7 +65,7 @@ class GrainField:
                 color = grain.color
                 rect.y = y * self.resolution
                 pygame.draw.rect(screen, color, rect)
-                # if resolution is less than 5 dont draw borders
+                # if resolution is less than 5 don't draw borders
                 if self.resolution > 5:
                     pygame.draw.rect(screen, Color.BLACK.value, rect, 1)
 

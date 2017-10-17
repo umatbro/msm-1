@@ -1,5 +1,6 @@
-from grain_field import GrainField
 from PIL import Image
+
+from ca.grain_field import GrainField
 
 
 def export_text(grain_field: GrainField, path_file='field.txt'):
