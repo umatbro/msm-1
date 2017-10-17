@@ -3,7 +3,7 @@ import sys
 import pygame
 
 from ca.grain_field import random_field
-from files import export_image, export_text
+from files import export_image, export_text, import_text
 
 MAX_FRAMES = 60
 
@@ -46,6 +46,7 @@ def run(
                 pygame.quit()
                 sys.exit(0)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_ESCAPE:
+                pygame.quit()
                 sys.exit(0)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_SPACE:
                 grain_field.upd()
@@ -55,6 +56,8 @@ def run(
                 export_image(grain_field)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_t:
                 export_text(grain_field)
+            elif event.type is pygame.KEYDOWN and event.key is pygame.K_l:
+                grain_field = import_text('field.txt')
 
         total_time += clock.tick(MAX_FRAMES)
 

@@ -42,7 +42,7 @@ class GrainField:
         for x in range(self.width):
             for y in range(self.height):
                 grain = self.field[x][y]
-                if grain.state is not None:
+                if grain.state is not None and grain.state is not 0:
                     grain.prev_state = grain.state
                     continue
                 # grain.prev_state = grain.state
@@ -70,7 +70,7 @@ class GrainField:
                     pygame.draw.rect(screen, Color.BLACK.value, rect, 1)
 
     def set_grain_state(self, x, y, state):
-        grain = self.field[y][x]  # type: Grain
+        grain = self.field[x][y]  # type: Grain
         grain.prev_state = grain.state
         grain.state = state
 
@@ -78,7 +78,7 @@ class GrainField:
         result = '\n'
         for x in range(self.width):
             for y in range(self.height):
-                grain = self.field[y][x]
+                grain = self.field[x][y]
                 result += '{} '.format(grain.state if grain.state is not None else 0)
             result += '\n'
         return result

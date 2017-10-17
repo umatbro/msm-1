@@ -2,3 +2,6 @@
 __pychache__
 .idea
 msm
+*.png
+*.txt
+!requirements.txt
