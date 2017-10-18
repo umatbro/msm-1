@@ -71,8 +71,8 @@ class GrainField:
 
     def set_grain_state(self, x, y, state):
         grain = self.field[x][y]  # type: Grain
-        grain.prev_state = grain.state
         grain.state = state
+        grain.prev_state = grain.state
 
     def __str__(self):
         result = '\n'
