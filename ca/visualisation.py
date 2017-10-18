@@ -44,9 +44,11 @@ def run(
         for event in pygame.event.get():
             if event.type is pygame.QUIT:
                 pygame.quit()
+                return grain_field
                 sys.exit(0)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_ESCAPE:
                 pygame.quit()
+                return grain_field
                 sys.exit(0)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_SPACE:
                 grain_field.upd()

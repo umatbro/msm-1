@@ -7,8 +7,8 @@ def sub_tuples(a, b):
 
 
 def constrain(value, min_val, max_val):
-    # if value > max_val - 70:
-    #     return max_val - 70
+    if value > max_val - 40:
+        return max_val - 40
     return max(min_val, min(value, max_val))
 
 

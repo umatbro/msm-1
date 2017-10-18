@@ -2,3 +2,5 @@ olefile==0.44
 Pillow==4.3.0
 pkg-resources==0.0.0
 pygame==1.9.3
+PyQt5==5.9
+sip==4.19.3

@@ -12,3 +12,6 @@ class Grain:
     @property
     def color(self):
         return Color.state_color(self.state)
+
+    def __str__(self):
+        return str(self.state)
