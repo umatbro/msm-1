@@ -87,15 +87,18 @@ class GrainField:
         return result
 
     def str(self):
+        result = 'Field {} x {}'.format(self.width, self.height)
         grains = []
         for x in range(self.width):
             for y in range(self.height):
                 grains.append(self.field[x][y])
 
         if not any([grain.state for grain in grains]):
-            return 'Empty field {} x {}'.format(self.width, self.height)
+            return result + ' (empty)'
+        elif not all([grain.state for grain in grains]):
+            return result + ' (not full)'
         else:
-            return 'Field {} x {}'.format(self.width, self.height)
+            return result + ' (full)'
 
 
 def random_field(size_x, size_y, num_of_grains, resolution=6):

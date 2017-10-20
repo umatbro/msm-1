@@ -105,7 +105,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 'resolution': int(self.resolution_input.text())
             })
             res = async_result.get()
-            print(res)
+            print(res.str())
             self.grain_field = res
             self.update_status_bar()
         except ValueError as e:
