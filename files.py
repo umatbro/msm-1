@@ -1,4 +1,4 @@
-import sys
+from datetime import datetime
 
 from PIL import Image
 
@@ -6,6 +6,10 @@ from ca.grain_field import GrainField
 
 
 def export_text(grain_field: GrainField, path_file='field.txt'):
+    # if path_file is None:
+    #     # generate filename from date
+    #     now = datetime.now()
+    #     path_file = '{}-{}_{}-{}_field.txt'.format(now.day, now.month, now.hour, now.minute)
     filename = path_file if path_file.endswith('.txt') else path_file + '.txt'
     with open(filename, 'w') as file:
         w, h = grain_field.width, grain_field.height
@@ -19,7 +23,12 @@ def export_text(grain_field: GrainField, path_file='field.txt'):
 
 
 def export_image(grain_field, path_file='field_img.png'):
+    # if path_file is None:
+    #     # generate filename from date
+    #     now = datetime.now()
+    #     path_file = '{}-{} {}:{} field_img.png'.format(now.day, now.month, now.hour, now.minute)
     filename = path_file if path_file.endswith('.png') else path_file + '.png'
+    print(filename)
 
     w, h = grain_field.width, grain_field.height
 

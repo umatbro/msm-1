@@ -7,3 +7,8 @@
 2 types of inclusion: **square** or **circle**
 
 * adding at the begenning
+
+## TODOs
+
+* update grain based on amount of states in neighbours
+* file import/export elegant

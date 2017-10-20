@@ -3,13 +3,15 @@ import random
 import pygame
 from ca.color import Color
 
-from ca.grain import Grain
+from ca.grain import Grain, GrainType
+from statistics import mode, StatisticsError
 
 
 class GrainField:
     """
     :ivar resolution: number of pixels in square side
     """
+
     def __init__(self, x_size, y_size, resolution=10):
         if type(x_size) or type(y_size) is float:
             x_size = int(x_size)
@@ -28,10 +30,10 @@ class GrainField:
         :return: tuple (left, top, right, bottom)
         """
         return (
-            self.field[x-1][y] if x > 0 else None,                  # left
-            self.field[x][y - 1] if y > 0 else None,                # top
-            self.field[x+1][y] if x < self.width - 1 else None,     # right
-            self.field[x][y+1] if y < self.height - 1 else None,    # bottom
+            self.field[x - 1][y] if x > 0 else Grain(type=GrainType.OUT_OF_RANGE),  # left
+            self.field[x][y - 1] if y > 0 else Grain(type=GrainType.OUT_OF_RANGE),  # top
+            self.field[x + 1][y] if x < self.width - 1 else Grain(type=GrainType.OUT_OF_RANGE),  # right
+            self.field[x][y + 1] if y < self.height - 1 else Grain(type=GrainType.OUT_OF_RANGE),  # bottom
         )
 
     def upd(self):
@@ -42,16 +44,17 @@ class GrainField:
         for x in range(self.width):
             for y in range(self.height):
                 grain = self.field[x][y]
+                # if there is inclusion in grain - do nothing with this grain
+                if grain.type is GrainType.INCLUSION:
+                    continue
                 if grain.state is not None and grain.state is not 0:
                     grain.prev_state = grain.state
                     continue
                 # grain.prev_state = grain.state
                 neighbours = self.von_neumann(x, y)
-                for neighbour in neighbours:  # type: Grain
-                    if neighbour and neighbour.prev_state:
-                        grain.state = neighbour.prev_state
-                        break
+                grain.state = decide_state(neighbours)
 
+        # after all current states are set - update prev state
         for y in range(self.height):
             for x in range(self.width):
                 grain = self.field[x][y]
@@ -106,3 +109,22 @@ def random_field(size_x, size_y, num_of_grains, resolution=6):
         )
 
     return field
+
+
+def decide_state(neighbours):
+    """
+    Decide which state should be chosen based on amount of surrounding neighbours
+
+    :param neighbours: neighbour grains from which to pick state
+    :return: state to be set
+    """
+    # list of surrounding states
+    unq_states = [neighbour.prev_state for neighbour in neighbours if
+                  neighbour.type is GrainType.GRAIN and neighbour.prev_state is not None]
+    while unq_states:
+        try:
+            # mode function returns the item that occurred most times in a list
+            return mode(unq_states)
+        except StatisticsError:
+            # if the amount is the same - pop item from the list
+            unq_states.pop()
