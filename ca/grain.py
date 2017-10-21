@@ -20,6 +20,8 @@ class Grain:
 
     @property
     def color(self):
+        if self.type is GrainType.INCLUSION:
+            return Color.BLACK
         return Color.state_color(self.state)
 
     def __str__(self):

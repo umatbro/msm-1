@@ -70,7 +70,7 @@ class GrainField:
                 pygame.draw.rect(screen, color, rect)
                 # if resolution is less than 5 don't draw borders
                 if self.resolution > 5:
-                    pygame.draw.rect(screen, Color.BLACK.value, rect, 1)
+                    pygame.draw.rect(screen, Color.BLACK, rect, 1)
 
     def set_grain_state(self, x, y, state):
         grain = self.field[x][y]  # type: Grain

@@ -1,4 +1,3 @@
-from enum import Enum
 import operator
 
 
@@ -12,7 +11,7 @@ def constrain(value, min_val, max_val):
     return max(min_val, min(value, max_val))
 
 
-class Color(Enum):
+class Color:
     RED = (255, 0, 0)
     GREEN = (0, 255, 0)
     BLUE = (0, 0, 255)
@@ -34,11 +33,11 @@ class Color(Enum):
     def state_color(state):
         cons = 10
         if state is 0 or state is None:
-            return Color.WHITE.value
+            return Color.WHITE
         if state % 3 == 0:
-            return sub_tuples(Color.BLUE.value, (0, 0, constrain(state//3 * cons, 0, 255)))
+            return sub_tuples(Color.BLUE, (0, 0, constrain(state//3 * cons, 0, 255)))
         if state % 3 == 1:
-            return sub_tuples(Color.GREEN.value, (0, constrain(state//3 * cons, 0, 255), 0))
+            return sub_tuples(Color.GREEN, (0, constrain(state//3 * cons, 0, 255), 0))
         if state % 3 == 2:
-            return sub_tuples(Color.RED.value, (constrain(state//3 * cons, 0, 255), 0, 0))
-        return Color.GREY.value
+            return sub_tuples(Color.RED, (constrain(state//3 * cons, 0, 255), 0, 0))
+        return Color.GREY
