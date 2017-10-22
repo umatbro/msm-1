@@ -46,7 +46,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_status_bar()
 
     def update_status_bar(self):
-        self.statusBar().showMessage(self.grain_field.str())
+        self.statusBar().showMessage(str(self.grain_field))
 
     def init_center(self):
         # layout
@@ -105,7 +105,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 'resolution': int(self.resolution_input.text())
             })
             res = async_result.get()
-            print(res.str())
+            print(res)
             self.grain_field = res
             self.update_status_bar()
         except ValueError as e:

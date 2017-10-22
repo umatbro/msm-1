@@ -77,7 +77,14 @@ class GrainField:
         grain.state = state
         grain.prev_state = grain.state
 
-    def __str__(self):
+    def set_grains(self, pixels, grain_type: GrainType, grain_state=None):
+        for x, y in pixels:
+            if x >= 0 and y >= 0 and x < self.width and y < self.height:
+                grain = self.field[x][y]
+                grain.type = grain_type
+                grain.prev_state = grain_state
+
+    def print_field(self):
         result = '\n'
         for x in range(self.width):
             for y in range(self.height):
@@ -86,7 +93,7 @@ class GrainField:
             result += '\n'
         return result
 
-    def str(self):
+    def __str__(self):
         result = 'Field {} x {}'.format(self.width, self.height)
         grains = []
         for x in range(self.width):
