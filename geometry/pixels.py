@@ -57,12 +57,17 @@ def circle(x_center, y_center, radius, filled=True):
             (b, -a),    # 270 - 315
             (a, -b),    # 315 - 360
         ])
-    result = []
-    for a, b in points:
-        a += x_center
-        b += y_center
-        result.append((a, b))
+    result = [(a + x_center, b + y_center) for a, b in points]
 
     if not filled:
         return result
+
+    result = sorted(result, key=lambda coords: (coords[0], coords[1]))
+    for i, coords in enumerate(result):
+        xx, yy = coords
+        if xx == result[i-1][0]:
+            for n in range(result[i-1][1] + 1, yy):
+                result.append((xx, n))
+
+    return result
 
