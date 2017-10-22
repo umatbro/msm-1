@@ -12,7 +12,10 @@ def run(
         x_size=100,
         y_size=100,
         num_of_grains=70,
-        resolution=6
+        resolution=6,
+        num_of_inclusions=0,
+        inclusions_size=1,
+        type_of_inclusions='square'
 ):
     """
     Run pygame window with visualisation
@@ -37,6 +40,7 @@ def run(
 
     # field
     grain_field = random_field(x_size, y_size, num_of_grains, resolution)
+    grain_field.random_inclusions(num_of_inclusions, inclusions_size, type_of_inclusions)
     # screen.fill((0, 0, 0))
 
     # main loop
@@ -72,4 +76,4 @@ def run(
 
 
 if __name__ == '__main__':
-    run(100, 100, 70, 6)
+    run(300, 300, 70, 1, 10, 10)

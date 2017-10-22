@@ -2,7 +2,7 @@ from datetime import datetime
 
 from PIL import Image
 
-from ca.grain_field import GrainField
+from ca.grain_field import GrainField, GrainType
 
 
 def export_text(grain_field: GrainField, path_file='field.txt'):
@@ -17,7 +17,12 @@ def export_text(grain_field: GrainField, path_file='field.txt'):
         file.write('{} {}\n'.format(w, h))
         for x in range(w):
             for y in range(h):
-                file.write('{x} {y} {id}\n'.format(x=x, y=y, id=grain_field.field[x][y].state))
+                grain = grain_field.field[x][y]
+                file.write('{x} {y} {id}\n'.format(
+                    x=x,
+                    y=y,
+                    id=grain.state if grain.type is not GrainType.INCLUSION else -1
+                ))
 
     print('Text file saved successfully')
 
@@ -62,7 +67,10 @@ def import_text(source):
                 x, y, state = line.rstrip().split(' ')
                 x, y = tuple(map(int, (x, y)))
                 state = 0 if state == 'None' else int(state)
-                grain_field.set_grain_state(x, y, state)
+                if state is not -1:
+                    grain_field.set_grain_state(x, y, state)
+                else:
+                    grain_field.field[x][y].type = GrainType.INCLUSION
                 # grain_field.field[x][y].state = state
                 # grain_field.field[x][y].prev_state = state
             except ValueError:

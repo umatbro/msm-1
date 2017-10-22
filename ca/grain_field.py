@@ -2,6 +2,7 @@ import random
 
 import pygame
 from ca.color import Color
+from geometry import pixels as px
 
 from ca.grain import Grain, GrainType
 from statistics import mode, StatisticsError
@@ -79,10 +80,41 @@ class GrainField:
 
     def set_grains(self, pixels, grain_type: GrainType, grain_state=None):
         for x, y in pixels:
-            if x >= 0 and y >= 0 and x < self.width and y < self.height:
+            if self.width > x >= 0 and self.height > y >= 0:
                 grain = self.field[x][y]
                 grain.type = grain_type
                 grain.prev_state = grain_state
+
+    def add_inclusion(self, location, size, type='square'):
+        """
+        Add single inclusion to the field
+
+        :param location: tuple with (x, y) location of the inclusion
+        :param size: in case of the square - length of the side, circle - radius
+        :param type: either 'circle' or 'square' (must be a string)
+        """
+        type = type.lower()
+        if type != 'square' and type != 'circle':
+            type = 'square'
+
+        x_, y_ = location
+        coords = []
+
+        if type == 'square':
+            coords = px.rectangle(x_, y_, size, size)
+
+        elif type == 'circle':
+            # do circle stuff
+            coords = px.circle(x_, y_, size)
+
+        for x, y in coords:
+            if self.width > x >= 0 and self.height > y >= 0:
+                self.field[x][y].type = GrainType.INCLUSION
+
+    def random_inclusions(self, num_of_inclusions, inclusion_size=1, inclusion_type='square'):
+        for i in range(num_of_inclusions):
+            x, y = random.randint(0, self.width - 1), random.randint(0, self.height - 1)
+            self.add_inclusion((x, y), inclusion_size, inclusion_type)
 
     def print_field(self):
         result = '\n'
