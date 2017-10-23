@@ -139,6 +139,13 @@ class GrainField:
         else:
             return result + ' (full)'
 
+    def __bool__(self):
+        grains = []
+        for x in range(self.width):
+            for y in range(self.height):
+                grains.append(self.field[x][y])
+        return any([grain.state for grain in grains])
+
 
 def random_field(size_x, size_y, num_of_grains, resolution=6):
     field = GrainField(size_x, size_y, resolution)

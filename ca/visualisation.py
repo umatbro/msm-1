@@ -24,6 +24,9 @@ def run(
     :param y_size: number of rows
     :param num_of_grains: initial number of grains
     :param resolution: length of square sides (in pixels)
+    :param num_of_inclusions: number of inclusions
+    :param inclusions_size: radius for circles, side length for squares
+    :param type_of_inclusions: either square or circle
     """
     pygame.init()
 
@@ -37,6 +40,8 @@ def run(
     # create clock
     clock = pygame.time.Clock()
     total_time = 0
+
+    paused = False
 
     # field
     grain_field = random_field(x_size, y_size, num_of_grains, resolution)
@@ -64,11 +69,14 @@ def run(
                 export_text(grain_field)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_l:
                 grain_field = import_text('field.txt')
+            elif event.type is pygame.KEYDOWN and event.key is pygame.K_p:
+                paused = not paused
 
         total_time += clock.tick(MAX_FRAMES)
 
         # m_pos = pygame.mouse.get_pos()
-        grain_field.upd()
+        if not paused:
+            grain_field.upd()
         # if not grain_field.upd():
         #     break
         grain_field.display(screen)
