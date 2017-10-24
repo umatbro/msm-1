@@ -6,10 +6,15 @@ from ca.grain_field import GrainField, GrainType
 
 
 def export_text(grain_field: GrainField, path_file='field.txt'):
-    # if path_file is None:
-    #     # generate filename from date
-    #     now = datetime.now()
-    #     path_file = '{}-{}_{}-{}_field.txt'.format(now.day, now.month, now.hour, now.minute)
+    """
+    Export grain field to a text file
+
+    :param grain_field: GrainField object to be exported
+    :param path_file: path to the file
+
+    First line of the file contains grid dimensions.
+    Following lines: <x> <y> <state>
+    """
     filename = path_file if path_file.endswith('.txt') else path_file + '.txt'
     with open(filename, 'w') as file:
         w, h = grain_field.width, grain_field.height
@@ -27,11 +32,13 @@ def export_text(grain_field: GrainField, path_file='field.txt'):
     print('Text file saved successfully')
 
 
-def export_image(grain_field, path_file='field_img.png'):
-    # if path_file is None:
-    #     # generate filename from date
-    #     now = datetime.now()
-    #     path_file = '{}-{} {}:{} field_img.png'.format(now.day, now.month, now.hour, now.minute)
+def export_image(grain_field: GrainField, path_file='field_img.png'):
+    """
+    Export grain field as a png image
+
+    :param grain_field: GrainField object to be exported
+    :param path_file: path to save the image
+    """
     filename = path_file if path_file.endswith('.png') else path_file + '.png'
     print(filename)
 
@@ -48,7 +55,7 @@ def export_image(grain_field, path_file='field_img.png'):
     print('Image saved successfully')
 
 
-def import_text(source):
+def import_text(source) -> GrainField:
     """
     Read text file and get grain field stored in it
 
@@ -59,9 +66,7 @@ def import_text(source):
         lines = file.readlines()
         x_size, y_size = tuple(map(int, lines[0].rstrip().split(' ')))  # rstrip removes newline character at the end of the line
 
-        resolution = 6 if x_size <= 300 and y_size <= 150 else 1
-
-        grain_field = GrainField(x_size, y_size, resolution)
+        grain_field = GrainField(x_size, y_size)
         for i, line in enumerate(lines[1:]):
             try:
                 x, y, state = line.rstrip().split(' ')
@@ -70,7 +75,7 @@ def import_text(source):
                 if state is not -1:
                     grain_field.set_grain_state(x, y, state)
                 else:
-                    grain_field.field[x][y].type = GrainType.INCLUSION
+                    grain_field.add_inclusion((x, y), 1, type='square')
                 # grain_field.field[x][y].state = state
                 # grain_field.field[x][y].prev_state = state
             except ValueError:

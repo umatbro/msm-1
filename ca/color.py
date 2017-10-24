@@ -6,8 +6,8 @@ def sub_tuples(a, b):
 
 
 def constrain(value, min_val, max_val):
-    if value > max_val - 40:
-        return max_val - 40
+    if value > max_val - 70:
+        return max_val - 70
     return max(min_val, min(value, max_val))
 
 
@@ -31,7 +31,7 @@ class Color:
 
     @staticmethod
     def state_color(state):
-        cons = 10
+        cons = 5
         if state is 0 or state is None:
             return Color.WHITE
         if state % 3 == 0:

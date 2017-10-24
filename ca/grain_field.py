@@ -13,13 +13,12 @@ class GrainField:
     :ivar resolution: number of pixels in square side
     """
 
-    def __init__(self, x_size, y_size, resolution=10):
+    def __init__(self, x_size, y_size):
         if type(x_size) or type(y_size) is float:
             x_size = int(x_size)
             y_size = int(y_size)
         self.width = x_size
         self.height = y_size
-        self.resolution = resolution
 
         # init list
         self.field = [[Grain() for y in range(self.height)] for x in range(self.width)]
@@ -61,16 +60,16 @@ class GrainField:
                 grain = self.field[x][y]
                 grain.prev_state = grain.state
 
-    def display(self, screen):
-        rect = pygame.Rect(0, 0, self.resolution, self.resolution)
+    def display(self, screen, resolution):
+        rect = pygame.Rect(0, 0, resolution, resolution)
         for x, col in enumerate(self.field):  # type: list
-            rect.x = x * self.resolution
+            rect.x = x * resolution
             for y, grain in enumerate(col):
                 color = grain.color
-                rect.y = y * self.resolution
+                rect.y = y * resolution
                 pygame.draw.rect(screen, color, rect)
                 # if resolution is less than 5 don't draw borders
-                if self.resolution > 5:
+                if resolution > 5:
                     pygame.draw.rect(screen, Color.BLACK, rect, 1)
 
     def set_grain_state(self, x, y, state):
@@ -110,6 +109,7 @@ class GrainField:
         for x, y in coords:
             if self.width > x >= 0 and self.height > y >= 0:
                 self.field[x][y].type = GrainType.INCLUSION
+                self.field[x][y].state = -1
 
     def random_inclusions(self, num_of_inclusions, inclusion_size=1, inclusion_type='square'):
         for i in range(num_of_inclusions):
@@ -147,8 +147,8 @@ class GrainField:
         return any([grain.state for grain in grains])
 
 
-def random_field(size_x, size_y, num_of_grains, resolution=6):
-    field = GrainField(size_x, size_y, resolution)
+def random_field(size_x, size_y, num_of_grains):
+    field = GrainField(size_x, size_y)
     for x in range(num_of_grains):
         field.set_grain_state(
             random.randint(0, size_x - 1),

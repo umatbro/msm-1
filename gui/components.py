@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QLabel, QLineEdit, QWidget, QHBoxLayout, QComboBox, QSpinBox
+from PyQt5.QtWidgets import QLabel, QLineEdit, QWidget, QHBoxLayout, QComboBox, QSpinBox, QPushButton
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QIntValidator
 from gui.utils import add_widgets_to_layout
@@ -26,6 +26,10 @@ class LabelLineEdit(QWidget):
     def value(self):
         return int(self.line_edit.text())
 
+    @value.setter
+    def value(self, value):
+        self.line_edit.setText(value)
+
 
 class LabelComboBox(QWidget):
     def __init__(self, parent, label='', options=None):
@@ -44,6 +48,10 @@ class LabelComboBox(QWidget):
         h_box.addWidget(self.label, 1)
         h_box.addWidget(self.combo_box, 4)
         self.setLayout(h_box)
+
+    @property
+    def value(self):
+        return self.combo_box.currentText()
 
 
 class LabelSpinBox(QWidget):
@@ -65,6 +73,10 @@ class LabelSpinBox(QWidget):
     def value(self):
         return self.spin_box.value()
 
+    @value.setter
+    def value(self, val):
+        self.spin_box.setValue(val)
+
 
 class GrainFieldSetterWidget(QWidget):
     def __init__(self, parent):
@@ -73,11 +85,14 @@ class GrainFieldSetterWidget(QWidget):
         # layout
         v_box = QtWidgets.QVBoxLayout(self)
         # setup input fields
-        self.x_input = LabelLineEdit(self, 'Width: ')
-        self.y_input = LabelLineEdit(self, 'Height: ')
+        self.text = QLabel('Default text')
+        self.text.setAlignment(Qt.AlignHCenter)
+        self.x_input = LabelSpinBox(self, 'Width: ')
+        self.y_input = LabelSpinBox(self, 'Height: ')
         self.nucleon_amount = LabelSpinBox(self, 'Nucleon amount: ', 10000)
 
         add_widgets_to_layout(v_box, [
+            self.text,
             self.x_input, self.y_input, self.nucleon_amount,
         ])
         self.setLayout(v_box)
@@ -86,8 +101,8 @@ class GrainFieldSetterWidget(QWidget):
 class ResolutionWidget(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
-        self.resolution_input = LabelSpinBox(self, 'Resolution: ', 100)
-        self.resolution_input.setToolTip('Length of squares sides (in pixels)')
+        self.resolution_input = LabelSpinBox(self, 'Resolution: ', 100, 1)
+        self.setToolTip('Length of squares sides (in pixels)')
         self.title = QLabel('Display options')
 
         v_box = QtWidgets.QVBoxLayout(self)
@@ -101,10 +116,12 @@ class InclusionWidget(QWidget):
         super().__init__(parent)
         self.inclusion_type = LabelComboBox(self, 'Inclusion type', ['Square', 'Circle'])
         self.inclusion_amount = LabelSpinBox(self, 'Amount of inclusions')
+        self.inclusion_size = LabelSpinBox(self, 'Size: ', 100, 1)
+        self.button = QPushButton('Add inclusions')
 
         v_box = QtWidgets.QVBoxLayout(self)
         add_widgets_to_layout(v_box, [
-            self.inclusion_type, self.inclusion_amount
+            self.inclusion_type, self.inclusion_amount, self.inclusion_size, self.button
         ])
         self.setLayout(v_box)
 
