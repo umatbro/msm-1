@@ -104,7 +104,7 @@ class GrainFieldSetterWidget(QWidget):
 class ResolutionWidget(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
-        self.resolution_input = LabelSpinBox(self, 'Resolution: ', 100, 1)
+        self.resolution_input = LabelSpinBox(self, 'Resolution: ', 30, 1)
         self.setToolTip('Length of squares sides (in pixels)')
         self.title = QLabel('Display options')
 

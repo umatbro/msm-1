@@ -113,7 +113,7 @@ class GrainField:
         grain.state = state
         grain.prev_state = grain.state
 
-    def set_grains(self, pixels, grain_type: GrainType, grain_state=None):
+    def set_grains(self, pixels, grain_type: GrainType, grain_state=0):
         for x, y in pixels:
             if self.width > x >= 0 and self.height > y >= 0:
                 grain = self.field[x][y]
@@ -219,4 +219,4 @@ def decide_state(neighbours):
             return mode(unq_states)
         except StatisticsError:
             # if the amount is the same - pop item from the list
-            unq_states.pop()
+            return random.choice(unq_states)
