@@ -23,6 +23,42 @@ class GrainField:
         # init list
         self.field = [[Grain() for y in range(self.height)] for x in range(self.width)]
 
+    @property
+    def grains(self):
+        """
+        :return: all grains in the field
+        """
+        grains = []
+        for x in range(self.width):
+            for y in range(self.height):
+                grains.append(self.field[x][y])
+
+        return grains
+
+    @property
+    def grains_and_coords(self):
+        """
+        :return: 3 element tuple (grain, x, y) where grain is Grain object, x, y are coordinates
+        """
+        result = []
+        for x in range(self.width):
+            for y in range(self.height):
+                result.append((self.field[x][y], x, y))
+
+        return result
+
+    @property
+    def grains_boundaries_points(self):
+        """
+        :return: point coordinates that lay on grain boundaries.
+        Points where neighbour state is different than own are returned.
+        """
+        return [(x, y) for grain, x, y in self.grains_and_coords if
+                any([
+                    neighbour.state != grain.state for neighbour in self.von_neumann(x, y)
+                    if neighbour.type is not GrainType.OUT_OF_RANGE
+                ])]
+
     def von_neumann(self, x, y):
         """
         Check grain neighbours in x, y coordinates
@@ -36,29 +72,29 @@ class GrainField:
             self.field[x][y + 1] if y < self.height - 1 else Grain(type=GrainType.OUT_OF_RANGE),  # bottom
         )
 
-    def upd(self):
+    def update(self):
+        """
+        update grain field state within 1 time step
+        """
         # go through all grains
         # check state - if prev state is not none go next
         # if prev state is none check neighbours and set state
         # update prev state
-        for x in range(self.width):
-            for y in range(self.height):
-                grain = self.field[x][y]
-                # if there is inclusion in grain - do nothing with this grain
-                if grain.type is GrainType.INCLUSION:
-                    continue
-                if grain.state is not None and grain.state is not 0:
-                    grain.prev_state = grain.state
-                    continue
-                # grain.prev_state = grain.state
-                neighbours = self.von_neumann(x, y)
-                grain.state = decide_state(neighbours)
+        for grain, x, y in self.grains_and_coords:
+            grain = self.field[x][y]
+            # if there is inclusion in grain - do nothing with this grain
+            if grain.type is GrainType.INCLUSION:
+                continue
+            if grain.state is not None and grain.state is not 0:
+                grain.prev_state = grain.state
+                continue
+            # grain.prev_state = grain.state
+            neighbours = self.von_neumann(x, y)
+            grain.state = decide_state(neighbours)
 
         # after all current states are set - update prev state
-        for y in range(self.height):
-            for x in range(self.width):
-                grain = self.field[x][y]
-                grain.prev_state = grain.state
+        for grain in self.grains:
+            grain.prev_state = grain.state
 
     def display(self, screen, resolution):
         rect = pygame.Rect(0, 0, resolution, resolution)
@@ -112,9 +148,20 @@ class GrainField:
                 self.field[x][y].state = -1
 
     def random_inclusions(self, num_of_inclusions, inclusion_size=1, inclusion_type='square'):
-        for i in range(num_of_inclusions):
-            x, y = random.randint(0, self.width - 1), random.randint(0, self.height - 1)
-            self.add_inclusion((x, y), inclusion_size, inclusion_type)
+        if not self:  # if field is empty - put inclusions wherever
+            for i in range(num_of_inclusions):
+                x, y = random.randint(0, self.width - 1), random.randint(0, self.height - 1)
+                self.add_inclusion((x, y), inclusion_size, inclusion_type)
+
+        else:  # else put them on grain boundaries
+            available_points = self.grains_boundaries_points
+            for i in range(num_of_inclusions):
+                x, y = random.choice(available_points)
+                self.add_inclusion(
+                    (x - random.randint(0, inclusion_size//2), y - random.randint(0, inclusion_size//2)),
+                    inclusion_size,
+                    inclusion_type
+                )
 
     def print_field(self):
         result = '\n'
@@ -140,11 +187,7 @@ class GrainField:
             return result + ' (full)'
 
     def __bool__(self):
-        grains = []
-        for x in range(self.width):
-            for y in range(self.height):
-                grains.append(self.field[x][y])
-        return any([grain.state for grain in grains])
+        return any([grain.state for grain in self.grains if grain.state and grain.state >= 0])
 
 
 def random_field(size_x, size_y, num_of_grains):

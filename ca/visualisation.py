@@ -36,7 +36,7 @@ def run_field(grain_field: GrainField, resolution) -> GrainField:
                 return grain_field
                 sys.exit(0)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_SPACE:
-                grain_field.upd()
+                grain_field.update()
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_r:
                 grain_field = random_field(grain_field.width, grain_field.height, 70)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_i:
@@ -52,7 +52,7 @@ def run_field(grain_field: GrainField, resolution) -> GrainField:
 
         # m_pos = pygame.mouse.get_pos()
         if not paused:
-            grain_field.upd()
+            grain_field.update()
 
         grain_field.display(screen, resolution)
         pygame.display.update()

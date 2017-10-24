@@ -91,6 +91,9 @@ class GrainFieldSetterWidget(QWidget):
         self.y_input = LabelSpinBox(self, 'Height: ')
         self.nucleon_amount = LabelSpinBox(self, 'Nucleon amount: ', 10000)
 
+        self.x_input.spin_box.setSingleStep(100)
+        self.y_input.spin_box.setSingleStep(100)
+
         add_widgets_to_layout(v_box, [
             self.text,
             self.x_input, self.y_input, self.nucleon_amount,

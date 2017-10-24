@@ -147,6 +147,7 @@ class MainWindow(QtWidgets.QMainWindow):
             inclusion_size=values.inclusion_size,
             inclusion_type=values.inclusion_type
         )
+        self.statusBar().showMessage('Added {} inclusions'.format(values.inclusion_amount))
 
     def run_visualisation(self):
         self.centralWidget().setEnabled(False)
