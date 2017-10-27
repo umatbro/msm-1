@@ -72,6 +72,36 @@ class GrainField:
             self.field[x][y + 1] if y < self.height - 1 else Grain(type=GrainType.OUT_OF_RANGE),  # bottom
         )
 
+    def moore_neighbourhood(self, x, y):
+        """
+        Get Moore neighbourhood of cell in given x, y coordinates
+
+        :return: tuple with Grain objects (left, top-left, top, top-right, right, bottom-right, bottom, bottom-left)
+        """
+        return (
+            self.field[x-1][y] if x > 0 else Grain(type=GrainType.OUT_OF_RANGE),  # left
+            self.field[x-1][y-1] if x > 0 and y > 0 else Grain(type=GrainType.OUT_OF_RANGE),  # top-left
+            self.field[x][y-1] if y > 0 else Grain(type=GrainType.OUT_OF_RANGE),  # top
+            self.field[x+1][y-1] if x < self.width - 1 and y > 0 else Grain(type=GrainType.OUT_OF_RANGE),  # top-right
+            self.field[x+1][y] if x < self.width - 1 else Grain(type=GrainType.OUT_OF_RANGE),  # right
+            self.field[x+1][y+1] if x < self.width - 1 and y < self.height -1 else Grain(type=GrainType.OUT_OF_RANGE),  # bottom-right
+            self.field[x][y+1] if y < self.height - 1 else Grain(type=GrainType.OUT_OF_RANGE),  # bottom
+            self.field[x-1][y+1] if x > 0 and y < self.height - 1 else Grain(type=GrainType.OUT_OF_RANGE)  # bottom-left
+        )
+
+    def further_moore(self, x, y):
+        """
+        Get further moore neighbours of cell in given x, y coordinates
+
+        :return: tuple with Grain objects (top-left, top-right, bottom-right, bottom-left)
+        """
+        return (
+            self.field[x-1][y-1] if x > 0 and y > 0 else Grain(type=GrainType.OUT_OF_RANGE),  # top-left
+            self.field[x+1][y-1] if x < self.width - 1 and y > 0 else Grain(type=GrainType.OUT_OF_RANGE),  # top-right
+            self.field[x+1][y+1] if x < self.width - 1 and y < self.height - 1 else Grain(type=GrainType.OUT_OF_RANGE),  # bottom-right
+            self.field[x-1][y+1] if x > 0 and y < self.height - 1 else Grain(type=GrainType.OUT_OF_RANGE)  # bottom-left
+        )
+
     def update(self):
         """
         update grain field state within 1 time step
