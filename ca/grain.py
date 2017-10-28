@@ -10,19 +10,31 @@ class GrainType(Enum):
 
 
 class Grain:
-    def __init__(self, state=None, type=GrainType.GRAIN):
+    EMPTY = 0
+    INCLUSION = -1
+    OUT_OF_RANGE = -2
+
+    def __init__(self, state=None):
+        if state is None:
+            state = Grain.EMPTY
         self.prev_state = state
         self.state = state
-        self.type = type
-
-    def check_neighbours(self):
-        pass
 
     @property
     def color(self):
-        if self.type is GrainType.INCLUSION:
+        if self.state is Grain.INCLUSION:
             return Color.BLACK
         return Color.state_color(self.state)
 
+    @property
+    def can_be_modified(self) -> bool:
+        """
+        :return: boolean that tells whether grain can be modified (is neither inclusion, filled nor out of range)
+        """
+        return self.state == Grain.EMPTY
+
     def __str__(self):
         return str(self.state)
+
+    def __bool__(self):
+        return self.state > Grain.EMPTY

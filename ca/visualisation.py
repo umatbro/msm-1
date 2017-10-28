@@ -80,11 +80,13 @@ def run(
     """
 
     # field
-    grain_field = random_field(x_size, y_size, num_of_grains)
-    grain_field.random_inclusions(num_of_inclusions, inclusions_size, type_of_inclusions)
-    # screen.fill((0, 0, 0))
+    grain_field = GrainField(x_size, y_size)
+    grain_field\
+        .random_inclusions(num_of_inclusions, inclusions_size, type_of_inclusions)\
+        .random_grains(num_of_grains)
+
     return run_field(grain_field, resolution)
 
 
 if __name__ == '__main__':
-    run(300, 300, 70, 1, 10, 10, 'circle')
+    run(300, 300, 3, 1, 100, 5, 'square')

@@ -31,9 +31,10 @@ class Color:
 
     @staticmethod
     def state_color(state):
-        cons = 5
         if state is 0 or state is None:
             return Color.WHITE
+
+        cons = 5
         if state % 3 == 0:
             return sub_tuples(Color.BLUE, (0, 0, constrain(state//3 * cons, 0, 255)))
         if state % 3 == 1:
