@@ -81,7 +81,6 @@ class LabelSpinBox(QWidget):
 class GrainFieldSetterWidget(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
-        # main_widget = QWidget(parent)
         # layout
         v_box = QtWidgets.QVBoxLayout(self)
         # setup input fields
@@ -90,13 +89,17 @@ class GrainFieldSetterWidget(QWidget):
         self.x_input = LabelSpinBox(self, 'Width: ')
         self.y_input = LabelSpinBox(self, 'Height: ')
         self.nucleon_amount = LabelSpinBox(self, 'Nucleon amount: ', 10000)
+        self.probability = LabelSpinBox(self, 'Probability', 100, 1)
 
         self.x_input.spin_box.setSingleStep(100)
         self.y_input.spin_box.setSingleStep(100)
+        self.probability.spin_box.setSuffix('%')
+        self.probability.spin_box.setSingleStep(10)
 
         add_widgets_to_layout(v_box, [
             self.text,
             self.x_input, self.y_input, self.nucleon_amount,
+            self.probability
         ])
         self.setLayout(v_box)
 

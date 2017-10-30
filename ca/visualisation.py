@@ -8,7 +8,7 @@ from files import export_image, export_text, import_text
 MAX_FRAMES = 60
 
 
-def run_field(grain_field: GrainField, resolution, paused=False) -> GrainField:
+def run_field(grain_field: GrainField, resolution, probability=100,  paused=False) -> GrainField:
     pygame.init()
 
     window_width = grain_field.width * resolution
@@ -50,7 +50,7 @@ def run_field(grain_field: GrainField, resolution, paused=False) -> GrainField:
 
         # m_pos = pygame.mouse.get_pos()
         if not paused:
-            grain_field.update()
+            grain_field.update(probability)
 
         grain_field.display(screen, resolution)
         pygame.display.update()
@@ -61,9 +61,11 @@ def run(
         y_size=100,
         num_of_grains=70,
         resolution=6,
+        probability=100,
         num_of_inclusions=0,
         inclusions_size=1,
-        type_of_inclusions='square'
+        type_of_inclusions='square',
+        paused=False
 ) -> GrainField:
     """
     Run pygame window with visualisation
@@ -71,10 +73,12 @@ def run(
     :param x_size: number of columns
     :param y_size: number of rows
     :param num_of_grains: initial number of grains
+    :param probability: probability of inclusion (in percents)
     :param resolution: length of square sides (in pixels)
     :param num_of_inclusions: number of inclusions
     :param inclusions_size: radius for circles, side length for squares
     :param type_of_inclusions: either square or circle
+    :param paused: boolean indicating whether simulation will be paused on start
     """
 
     # field
@@ -83,7 +87,7 @@ def run(
         .random_inclusions(num_of_inclusions, inclusions_size, type_of_inclusions)\
         .random_grains(num_of_grains)
 
-    return run_field(grain_field, resolution)
+    return run_field(grain_field, resolution, probability, paused)
 
 
 if __name__ == '__main__':

@@ -47,7 +47,7 @@ def export_image(grain_field: GrainField, path_file='field_img.png'):
     print('Image saved successfully')
 
 
-def import_text(source) -> GrainField:
+def import_text(source: str) -> GrainField:
     """
     Read text file and get grain field stored in it
 
@@ -68,14 +68,12 @@ def import_text(source) -> GrainField:
                     grain_field.set_grain_state(x, y, state)
                 else:
                     grain_field.add_inclusion((x, y), 1, type='square')
-                # grain_field.field[x][y].state = state
-                # grain_field.field[x][y].prev_state = state
             except ValueError:
                 print('Error in line {}'.format(i + 2))
 
         return grain_field
 
 
-def import_img(source):
+def import_img(source: str) -> GrainField:
     pass
 

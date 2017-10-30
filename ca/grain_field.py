@@ -1,11 +1,12 @@
 import random
+from collections import namedtuple
 
 import pygame
 from ca.color import Color
 from geometry import pixels as px
 
 from ca.grain import Grain, GrainType
-from statistics import mode, StatisticsError
+from ca.neighbourhood import decide_state, decide_by_4_rules, Neighbours
 
 
 class GrainField:
@@ -74,15 +75,15 @@ class GrainField:
 
         :return: tuple with Grain objects (left, top-left, top, top-right, right, bottom-right, bottom, bottom-left)
         """
-        return (
-            self.field[x-1][y] if x > 0 else Grain.OUT_OF_RANGE,  # left
-            self.field[x-1][y-1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
-            self.field[x][y-1] if y > 0 else Grain.OUT_OF_RANGE,  # top
-            self.field[x+1][y-1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
-            self.field[x+1][y] if x < self.width - 1 else Grain.OUT_OF_RANGE,  # right
-            self.field[x+1][y+1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom-right
-            self.field[x][y+1] if y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom
-            self.field[x-1][y+1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
+        return Neighbours(
+            left=self.field[x-1][y] if x > 0 else Grain.OUT_OF_RANGE,  # left
+            topleft=self.field[x-1][y-1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
+            top=self.field[x][y-1] if y > 0 else Grain.OUT_OF_RANGE,  # top
+            topright=self.field[x+1][y-1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
+            right=self.field[x+1][y] if x < self.width - 1 else Grain.OUT_OF_RANGE,  # right
+            botright=self.field[x+1][y+1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom-right
+            bot=self.field[x][y+1] if y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom
+            botleft=self.field[x-1][y+1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
         )
 
     def further_moore(self, x, y):
@@ -98,9 +99,11 @@ class GrainField:
             self.field[x-1][y+1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
         )
 
-    def update(self):
+    def update(self, probability=100):
         """
         update grain field state within 1 time step
+
+        :param probability: probability used in rule 4 from decide_state method
         """
         # go through all grains
         # check state - if prev state is not none go next
@@ -109,13 +112,17 @@ class GrainField:
         for grain, x, y in self.grains_and_coords:
             if not grain.can_be_modified:
                 continue
-            neighbours = self.von_neumann(x, y)
-            decided_state = decide_state(neighbours)
+            # neighbours = self.von_neumann(x, y)
+            # decided_state = decide_state(neighbours)
+            neighbours = self.moore_neighbourhood(x, y)
+            decided_state = decide_by_4_rules(neighbours, probability)
             grain.state = decided_state if decided_state is not None else grain.prev_state
 
         # after all current states are set - update prev state
         for grain in self.grains:
             grain.prev_state = grain.state
+
+        return self
 
     def display(self, screen, resolution):
         rect = pygame.Rect(0, 0, resolution, resolution)
@@ -244,23 +251,3 @@ def random_field(size_x, size_y, num_of_grains):
 
     return field
 
-
-def decide_state(neighbours):
-    """
-    Decide which state should be chosen based on amount of surrounding neighbours.
-
-    :param neighbours: neighbour grains from which to pick state.
-    :return: state to be set or None if state cannot be set.
-    """
-    # list of surrounding states
-    unq_states = [neighbour.prev_state for neighbour in neighbours if
-                  neighbour is not Grain.OUT_OF_RANGE and neighbour.prev_state > 0]
-
-    if not unq_states:  # if states list is empty - return none
-        return None
-    try:
-        # mode function returns the item that occurred most times in a list
-        return mode(unq_states)
-    except StatisticsError:
-        # if the amount is the same - choose random element
-        return random.choice(unq_states)

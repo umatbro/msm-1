@@ -33,6 +33,10 @@ class Grain:
         """
         return self.state == Grain.EMPTY
 
+    @property
+    def has_unq_state(self):
+        return self.prev_state > Grain.EMPTY
+
     def __str__(self):
         return str(self.state)
 

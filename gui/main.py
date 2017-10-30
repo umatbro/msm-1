@@ -104,12 +104,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         :return: namedtuple with: width, height, nucleon_amount, resolution
         """
-        Values = namedtuple('FieldValues', ['width', 'height', 'nucleon_amount', 'resolution',
+        Values = namedtuple('FieldValues', ['width', 'height', 'nucleon_amount', 'resolution', 'probability',
                                             'inclusion_type', 'inclusion_amount', 'inclusion_size'])
         return Values(
             width=self.grain_field_widget.x_input.value,
             height=self.grain_field_widget.y_input.value,
             nucleon_amount=self.grain_field_widget.nucleon_amount.value,
+            probability=self.grain_field_widget.probability.value,
             inclusion_type=self.inclusion_widget.inclusion_type.value,
             inclusion_amount=self.inclusion_widget.inclusion_amount.value,
             inclusion_size=self.inclusion_widget.inclusion_size.value,
@@ -170,6 +171,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 'x_size': values.width,
                 'y_size': values.height,
                 'num_of_grains': values.nucleon_amount,
+                'probability': values.probability,
                 'resolution': values.resolution,
                 'num_of_inclusions': values.inclusion_amount,
                 'type_of_inclusions': values.inclusion_type,
@@ -211,6 +213,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.grain_field_widget.x_input.value = 100
         self.grain_field_widget.y_input.value = 100
         self.grain_field_widget.nucleon_amount.value = 100
+        self.grain_field_widget.probability.value = 50
 
         # inclusions
         self.inclusion_widget.inclusion_size.value = 1
