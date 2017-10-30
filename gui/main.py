@@ -49,9 +49,19 @@ class MainWindow(QtWidgets.QMainWindow):
         microstructure_menu.addAction(export_action)
         microstructure_menu.addAction(export_image_action)
 
+        # reset action
         reset_action = QtWidgets.QAction('&Reset', self)
+        reset_action.setShortcut('Ctrl+R')
+        reset_action.setStatusTip('Clear current grain field')
         reset_action.triggered.connect(self.reset_field)
         filemenu.addAction(reset_action)
+
+        # quitting program
+        exit_action = QtWidgets.QAction(QtGui.QIcon('exit.png'), '&Exit', self)
+        exit_action.setShortcut('Ctrl+Q')
+        exit_action.setStatusTip('Exit application')
+        exit_action.triggered.connect(QtWidgets.qApp.quit)
+        filemenu.addAction(exit_action)
 
     def init_status_bar(self):
         self.statusBar()

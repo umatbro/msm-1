@@ -8,7 +8,7 @@ from files import export_image, export_text, import_text
 MAX_FRAMES = 60
 
 
-def run_field(grain_field: GrainField, resolution) -> GrainField:
+def run_field(grain_field: GrainField, resolution, paused=False) -> GrainField:
     pygame.init()
 
     window_width = grain_field.width * resolution
@@ -21,8 +21,6 @@ def run_field(grain_field: GrainField, resolution) -> GrainField:
     # create clock
     clock = pygame.time.Clock()
     total_time = 0
-
-    paused = False
 
     # main loop
     while 1337:
