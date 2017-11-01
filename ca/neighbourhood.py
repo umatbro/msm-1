@@ -45,26 +45,29 @@ def decide_by_4_rules(moore_neighbours: Neighbours, probability=50):
     # rule 1
     mn = moore_neighbours
     states = [grain.prev_state for grain in mn if grain is not Grain.OUT_OF_RANGE and grain.has_unq_state]
-    if not states:
-        return None
-    counter = Counter(states)
-    value, occurrences = max(counter.items(), key=operator.itemgetter(1))
-    if occurrences >= 5:
-        return value
+    if states:
+        counter = Counter(states)
+        value, occurrences = max(counter.items(), key=operator.itemgetter(1))
+        if occurrences >= 5:
+            return value
 
     # rule 2
-    nearest_moore = mn.left, mn.top, mn.right, mn.bot
-    counter = Counter(nearest_moore)
-    value, occurrences = max(counter.items(), key=operator.itemgetter(1))
-    if occurrences >= 3:
-        return value
+    nearest_moore = [grain.prev_state for grain in (mn.left, mn.top, mn.right, mn.bot)
+                     if grain is not Grain.OUT_OF_RANGE and grain.has_unq_state]
+    if nearest_moore:
+        counter = Counter(nearest_moore)
+        value, occurrences = max(counter.items(), key=operator.itemgetter(1))
+        if occurrences >= 3:
+            return value
 
     # rule 3
-    further_moore = mn.topleft, mn.topright, mn.botright, mn.botleft
-    counter = Counter(further_moore)
-    value, occurrences = max(counter.items(), key=operator.itemgetter(1))
-    if occurrences >= 3:
-        return value
+    further_moore = [grain.prev_state for grain in (mn.topleft, mn.topright, mn.botright, mn.botleft)
+                     if grain is not Grain.OUT_OF_RANGE and grain]
+    if further_moore:
+        counter = Counter(further_moore)
+        value, occurrences = max(counter.items(), key=operator.itemgetter(1))
+        if occurrences >= 3:
+            return value
 
     # rule 4
     try:

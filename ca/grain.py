@@ -41,4 +41,4 @@ class Grain:
         return str(self.state)
 
     def __bool__(self):
-        return self.state > Grain.EMPTY
+        return self.prev_state > Grain.EMPTY

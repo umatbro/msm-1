@@ -34,7 +34,7 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                 return grain_field
                 sys.exit(0)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_SPACE:
-                grain_field.update()
+                grain_field.update(probability)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_r:
                 grain_field = random_field(grain_field.width, grain_field.height, 70)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_i:
