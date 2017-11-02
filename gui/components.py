@@ -103,6 +103,12 @@ class GrainFieldSetterWidget(QWidget):
         ])
         self.setLayout(v_box)
 
+    def setEnabled(self, setting: bool):
+        self.text.setEnabled(setting)
+        self.x_input.setEnabled(setting)
+        self.y_input.setEnabled(setting)
+        self.nucleon_amount.setEnabled(setting)
+
 
 class ResolutionWidget(QWidget):
     def __init__(self, parent):
