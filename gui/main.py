@@ -7,7 +7,7 @@ from ca import visualisation, grain_field
 from PyQt5 import QtCore, QtGui, QtWidgets
 from gui.components import LabelLineEdit, InclusionWidget, GrainFieldSetterWidget, separator, ResolutionWidget
 from gui.utils import add_widgets_to_layout
-from files import export_text, export_image, import_text
+from files import export_text, export_image, import_text, import_img
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -37,17 +37,20 @@ class MainWindow(QtWidgets.QMainWindow):
         microstructure_menu = filemenu.addMenu('&Microstructure')
 
         # setup import and export actions
-        import_action = QtWidgets.QAction("&Import", self)
+        import_action = QtWidgets.QAction("Impor&t", self)
         import_action.triggered.connect(self.import_field)
+        import_img_action = QtWidgets.QAction('Import &image', self)
+        import_img_action.triggered.connect(self.import_field_image)
 
         export_action = QtWidgets.QAction('&Export', self)
         export_action.triggered.connect(self.export_field)
         export_image_action = QtWidgets.QAction('E&xport Image', self)
         export_image_action.triggered.connect(self.export_field_image)
 
-        microstructure_menu.addAction(import_action)
         microstructure_menu.addAction(export_action)
+        microstructure_menu.addAction(import_action)
         microstructure_menu.addAction(export_image_action)
+        microstructure_menu.addAction(import_img_action)
 
         # reset action
         reset_action = QtWidgets.QAction('&Reset', self)
@@ -126,6 +129,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.grain_field = import_text(src)
         self.update_layout()
 
+    def import_field_image(self):
+        src = QtWidgets.QFileDialog().getOpenFileName(self, 'Import image', filter='*.png')[0]
+        if src:
+            self.grain_field = import_img(src)
+        self.update_layout()
+
     def export_field(self):
         print('Export')
         file_dialog = QtWidgets.QFileDialog()
@@ -177,7 +186,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 'type_of_inclusions': values.inclusion_type,
                 'inclusions_size': values.inclusion_size
             }) if not self.grain_field else pool.apply_async(func=visualisation.run_field, args=(
-                self.grain_field, values.resolution
+                self.grain_field, values.resolution, values.probability
             ))
             res = async_result.get()
             print(res)

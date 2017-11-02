@@ -1,3 +1,4 @@
+from collections import namedtuple, defaultdict
 from PIL import Image
 
 from ca.grain_field import GrainField
@@ -75,5 +76,31 @@ def import_text(source: str) -> GrainField:
 
 
 def import_img(source: str) -> GrainField:
-    pass
+    with Image.open(source) as img:
+        width, height = img.size
 
+        # group pixels with the same color
+        colors_coords = defaultdict(list)  # key: color, value - list with coord tuples
+
+        for y in range(height):
+            for x in range(width):
+                color = img.getpixel((x, y))
+                colors_coords[color].append((x, y))
+
+    grain_field = GrainField(width, height)
+    # convert color to states
+    state_counter = 1
+    for color, list_of_coords in colors_coords.items():
+        if color == (0, 0, 0):  # black - inclusion
+            for x, y in list_of_coords:
+                grain_field.set_grain_state(x, y, -1)
+            continue
+        if color == (255, 255, 255):  # white - empty
+            # for x, y in list_of_coords:
+            #     grain_field.set_grain_state(x, y, 0)
+            continue
+        for x, y in list_of_coords:
+            grain_field.set_grain_state(x, y, state_counter)
+        state_counter += 1
+
+    return grain_field

@@ -1,5 +1,7 @@
 import operator
 
+CONS = 5
+
 
 def sub_tuples(a, b):
     return tuple(map(operator.sub, a, b))
@@ -34,11 +36,41 @@ class Color:
         if state is 0 or state is None:
             return Color.WHITE
 
-        cons = 5
-        if state % 3 == 0:
-            return sub_tuples(Color.BLUE, (0, 0, constrain(state//3 * cons, 0, 255)))
-        if state % 3 == 1:
-            return sub_tuples(Color.GREEN, (0, constrain(state//3 * cons, 0, 255), 0))
-        if state % 3 == 2:
-            return sub_tuples(Color.RED, (constrain(state//3 * cons, 0, 255), 0, 0))
+        if state % 5 == 0:
+            return sub_tuples(Color.BLUE, (0, 0, constrain(state//3 * CONS, 0, 255)))
+        if state % 5 == 1:
+            return sub_tuples(Color.GREEN, (0, constrain(state//3 * CONS, 0, 255), 0))
+        if state % 5 == 2:
+            return sub_tuples(Color.RED, (constrain(state//3 * CONS, 0, 255), 0, 0))
+        if state % 5 == 3:
+            return (0, 255 - constrain(state//3 * CONS, 0, 255), 255 - constrain(state//3 * CONS, 0, 255))
+        if state % 5 == 4:
+            return (255 - constrain(state//3 * CONS, 0, 255), 255- constrain(state//3 * CONS, 0, 255), 0)
         return Color.GREY
+
+    @staticmethod
+    def convert_color_to_state(color) -> int:
+        """
+        Convert color (r, g, b) to a grain state (int)
+
+        :param color: tuple with (r, g, b) values
+        :return: integer with state
+        """
+        if len(color) is not 3:
+            raise ValueError('Function parameter must be a 3 element tuple')
+        if not all([0 <= value <= 255 for value in color]):
+            raise ValueError('Invalid color values (must be between 0 - 255')
+        if color is (255, 255, 255):
+            return 0  # Grain.EMPTY
+        if color is (0, 0, 0):
+            return -1  # Grain.INCLUSION
+        r, g, b = color
+
+        def calc_state(value):
+            return ((255 - value) * 3) // CONS
+
+        if r and not g and not b:
+            # value = 255 - state//3 * cons => state = (255 - value) * 3 / cons
+            return calc_state(r)
+        if g and not r and not b:
+            return calc_state(r)
