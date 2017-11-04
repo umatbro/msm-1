@@ -5,7 +5,7 @@ from time import sleep
 
 from ca import visualisation, grain_field
 from PyQt5 import QtCore, QtGui, QtWidgets
-from gui.components import LabelLineEdit, InclusionWidget, GrainFieldSetterWidget, separator, ResolutionWidget
+from gui.components import InclusionWidget, GrainFieldSetterWidget, separator, ResolutionWidget, ProbabilityWidget
 from gui.utils import add_widgets_to_layout
 from files import export_text, export_image, import_text, import_img
 
@@ -75,14 +75,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def init_center(self):
         central_wrapper = QtWidgets.QWidget()
-        self.grain_field_widget = GrainFieldSetterWidget(central_wrapper)
-        self.inclusion_widget = InclusionWidget(central_wrapper)
-        self.resolution_picker = ResolutionWidget(central_wrapper)
+
+        # left pane
+        left_pane = QtWidgets.QWidget(central_wrapper)
+        self.grain_field_widget = GrainFieldSetterWidget(left_pane)
+        self.inclusion_widget = InclusionWidget(left_pane)
+        self.resolution_picker = ResolutionWidget(left_pane)
         # layout
-        v_box = QtWidgets.QVBoxLayout(central_wrapper)
+        v_box = QtWidgets.QVBoxLayout(left_pane)
         v_box_items = []
-        # setup input fields
-        self.set_default_values()
 
         # buttons
         self.start_button = QtWidgets.QPushButton('Start')
@@ -90,16 +91,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.inclusion_widget.button.clicked.connect(self.add_inclusions)
         v_box_items.extend([
             self.grain_field_widget,
-            separator(central_wrapper),
+            separator(left_pane),
             self.inclusion_widget,
-            separator(central_wrapper),
+            separator(left_pane),
             self.resolution_picker,
-            separator(central_wrapper),
+            separator(left_pane),
             self.start_button
         ])
         add_widgets_to_layout(v_box, v_box_items)
-        central_wrapper.setLayout(v_box)
+        left_pane.setLayout(v_box)
+
+        # right pane
+        right_pane = QtWidgets.QWidget(central_wrapper)
+        self.probability = ProbabilityWidget(right_pane)
+        v_box_r = QtWidgets.QVBoxLayout(right_pane)
+        v_box_r.addWidget(self.probability)
+
+        h_box = QtWidgets.QHBoxLayout(central_wrapper)
+        h_box.addWidget(left_pane)
+        h_box.addWidget(right_pane)
         self.setCentralWidget(central_wrapper)
+
+        # setup input fields
+        self.set_default_values()
 
     def get_values(self):
         """
@@ -113,7 +127,7 @@ class MainWindow(QtWidgets.QMainWindow):
             width=self.grain_field_widget.x_input.value,
             height=self.grain_field_widget.y_input.value,
             nucleon_amount=self.grain_field_widget.nucleon_amount.value,
-            probability=self.grain_field_widget.probability.value,
+            probability=self.probability.value,
             inclusion_type=self.inclusion_widget.inclusion_type.value,
             inclusion_amount=self.inclusion_widget.inclusion_amount.value,
             inclusion_size=self.inclusion_widget.inclusion_size.value,
@@ -222,7 +236,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.grain_field_widget.x_input.value = 100
         self.grain_field_widget.y_input.value = 100
         self.grain_field_widget.nucleon_amount.value = 100
-        self.grain_field_widget.probability.value = 50
+        self.probability.value = 50
 
         # inclusions
         self.inclusion_widget.inclusion_size.value = 1

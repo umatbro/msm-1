@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QLabel, QLineEdit, QWidget, QHBoxLayout, QComboBox, QSpinBox, QPushButton
+from PyQt5.QtWidgets import QLabel, QLineEdit, QWidget, QHBoxLayout, QComboBox, QSpinBox, QPushButton, QSlider
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QIntValidator
 from gui.utils import add_widgets_to_layout
@@ -89,17 +89,20 @@ class GrainFieldSetterWidget(QWidget):
         self.x_input = LabelSpinBox(self, 'Width: ')
         self.y_input = LabelSpinBox(self, 'Height: ')
         self.nucleon_amount = LabelSpinBox(self, 'Nucleon amount: ', 10000)
-        self.probability = LabelSpinBox(self, 'Probability', 100, 1)
+        # self.probability = LabelSpinBox(self, 'Probability', 100, 1)
+        # self.probability = QSlider(Qt.Horizontal)
+        # self.probability.setMinimum(0)
+        # self.probability.setMaximum(100)
 
         self.x_input.spin_box.setSingleStep(100)
         self.y_input.spin_box.setSingleStep(100)
-        self.probability.spin_box.setSuffix('%')
-        self.probability.spin_box.setSingleStep(10)
+        # self.probability.spin_box.setSuffix('%')
+        # self.probability.spin_box.setSingleStep(10)
 
         add_widgets_to_layout(v_box, [
             self.text,
             self.x_input, self.y_input, self.nucleon_amount,
-            self.probability
+            # self.probability
         ])
         self.setLayout(v_box)
 
@@ -111,8 +114,8 @@ class GrainFieldSetterWidget(QWidget):
 
 
 class ResolutionWidget(QWidget):
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.resolution_input = LabelSpinBox(self, 'Resolution: ', 30, 1)
         self.setToolTip('Length of squares sides (in pixels)')
         self.title = QLabel('Display options')
@@ -136,6 +139,32 @@ class InclusionWidget(QWidget):
             self.inclusion_type, self.inclusion_amount, self.inclusion_size, self.button
         ])
         self.setLayout(v_box)
+
+
+class ProbabilityWidget(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.setFixedWidth(49)
+        self.label = QLabel('0%')
+        self.probability = QSlider(Qt.Vertical)
+        self.probability.setMinimum(0)
+        self.probability.setMaximum(100)
+        self.probability.setTickInterval(10)
+        self.probability.setTickPosition(QSlider.TicksRight)
+        self.probability.valueChanged.connect(lambda: self.label.setText('{}%'.format(self.probability.value())))
+        v_box = QtWidgets.QVBoxLayout(self)
+        v_box.addWidget(self.label)
+        v_box.addWidget(self.probability)
+        self.setLayout(v_box)
+        self.setToolTip('Probability')
+
+    @property
+    def value(self):
+        return self.probability.value()
+
+    @value.setter
+    def value(self, val):
+        self.probability.setValue(val)
 
 
 def separator(parent):
