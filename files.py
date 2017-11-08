@@ -23,7 +23,7 @@ def export_text(grain_field: GrainField, path_file='field.txt'):
             file.write('{x} {y} {id}\n'.format(
                 x=x,
                 y=y,
-                id=grain.state if grain.type is not GrainType.INCLUSION else -1
+                id=grain.state  # if grain.type is not GrainType.INCLUSION else -1
             ))
 
     print('Text file saved successfully')
@@ -57,7 +57,8 @@ def import_text(source: str) -> GrainField:
     """
     with open(source, 'r') as file:
         lines = file.readlines()
-        x_size, y_size = tuple(map(int, lines[0].rstrip().split(' ')))  # rstrip removes newline character at the end of the line
+        # rstrip removes newline character at the end of the line
+        x_size, y_size = tuple(map(int, lines[0].rstrip().split(' ')))
 
         grain_field = GrainField(x_size, y_size)
         for i, line in enumerate(lines[1:]):

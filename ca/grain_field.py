@@ -18,7 +18,7 @@ class GrainField:
         self.height = y_size
 
         # init list
-        self.field = [[Grain() for y in range(self.height)] for x in range(self.width)]
+        self.field = [Grain() for y in range(self.height) for x in range(self.width)]
 
     @property
     def grains(self):
@@ -28,7 +28,7 @@ class GrainField:
         grains = []
         for x in range(self.width):
             for y in range(self.height):
-                grains.append(self.field[x][y])
+                grains.append(self[x, y])
 
         return grains
 
@@ -40,7 +40,7 @@ class GrainField:
         result = []
         for x in range(self.width):
             for y in range(self.height):
-                result.append((self.field[x][y], x, y))
+                result.append((self[x, y], x, y))
 
         return result
 
@@ -63,10 +63,10 @@ class GrainField:
         :return: tuple (left, top, right, bottom)
         """
         return (
-            self.field[x - 1][y] if x > 0 else Grain.OUT_OF_RANGE,  # left
-            self.field[x][y - 1] if y > 0 else Grain.OUT_OF_RANGE,  # top
-            self.field[x + 1][y] if x < self.width - 1 else Grain.OUT_OF_RANGE,  # right
-            self.field[x][y + 1] if y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom
+            self[x - 1, y] if x > 0 else Grain.OUT_OF_RANGE,  # left
+            self[x, y - 1] if y > 0 else Grain.OUT_OF_RANGE,  # top
+            self[x + 1, y] if x < self.width - 1 else Grain.OUT_OF_RANGE,  # right
+            self[x, y + 1] if y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom
         )
 
     def moore_neighbourhood(self, x, y):
@@ -76,14 +76,14 @@ class GrainField:
         :return: tuple with Grain objects (left, top-left, top, top-right, right, bottom-right, bottom, bottom-left)
         """
         return Neighbours(
-            left=self.field[x-1][y] if x > 0 else Grain.OUT_OF_RANGE,  # left
-            topleft=self.field[x-1][y-1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
-            top=self.field[x][y-1] if y > 0 else Grain.OUT_OF_RANGE,  # top
-            topright=self.field[x+1][y-1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
-            right=self.field[x+1][y] if x < self.width - 1 else Grain.OUT_OF_RANGE,  # right
-            botright=self.field[x+1][y+1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom-right
-            bot=self.field[x][y+1] if y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom
-            botleft=self.field[x-1][y+1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
+            left=self[x-1, y] if x > 0 else Grain.OUT_OF_RANGE,  # left
+            topleft=self[x-1, y-1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
+            top=self[x, y-1] if y > 0 else Grain.OUT_OF_RANGE,  # top
+            topright=self[x+1, y-1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
+            right=self[x+1, y] if x < self.width - 1 else Grain.OUT_OF_RANGE,  # right
+            botright=self[x+1, y+1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom-right
+            bot=self[x, y+1] if y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom
+            botleft=self[x-1, y+1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
         )
 
     def further_moore(self, x, y):
@@ -93,10 +93,10 @@ class GrainField:
         :return: tuple with Grain objects (top-left, top-right, bottom-right, bottom-left)
         """
         return (
-            self.field[x-1][y-1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
-            self.field[x+1][y-1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
-            self.field[x+1][y+1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom-right
-            self.field[x-1][y+1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
+            self[x-1, y-1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
+            self[x+1, y-1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
+            self[x+1, y+1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom-right
+            self[x-1, y+1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
         )
 
     def update(self, probability=100):
@@ -126,25 +126,24 @@ class GrainField:
 
     def display(self, screen, resolution):
         rect = pygame.Rect(0, 0, resolution, resolution)
-        for x, col in enumerate(self.field):  # type: list
+        for grain, x, y in self.grains_and_coords:
             rect.x = x * resolution
-            for y, grain in enumerate(col):
-                color = grain.color
-                rect.y = y * resolution
-                pygame.draw.rect(screen, color, rect)
-                # if resolution is less than 5 don't draw borders
-                if resolution > 5:
-                    pygame.draw.rect(screen, Color.BLACK, rect, 1)
+            color = grain.color
+            rect.y = y * resolution
+            pygame.draw.rect(screen, color, rect)
+            # if resolution is less than 5 don't draw borders
+            if resolution > 5:
+                pygame.draw.rect(screen, Color.BLACK, rect, 1)
 
     def set_grain_state(self, x, y, state):
-        grain = self.field[x][y]  # type: Grain
+        grain = self[x, y]  # type: Grain
         grain.state = state
         grain.prev_state = grain.state
 
     def set_grains(self, pixels, grain_type: GrainType, grain_state=0):
         for x, y in pixels:
             if self.width > x >= 0 and self.height > y >= 0:
-                grain = self.field[x][y]
+                grain = self[x, y]
                 grain.type = grain_type
                 grain.prev_state = grain_state
 
@@ -171,8 +170,8 @@ class GrainField:
 
         for x, y in coords:
             if self.width > x >= 0 and self.height > y >= 0:
-                # self.field[x][y].type = GrainType.INCLUSION
-                self.field[x][y].state = Grain.INCLUSION
+                # self[x, y].type = GrainType.INCLUSION
+                self[x, y].state = Grain.INCLUSION
 
     def random_inclusions(self, num_of_inclusions, inclusion_size=1, inclusion_type='square'):
         """
@@ -209,7 +208,7 @@ class GrainField:
         """
         for i in range(num_of_grains):
             x, y = random.randrange(1, self.height), random.randrange(1, self.width),
-            if self.field[x][y].can_be_modified:
+            if self[x, y].can_be_modified:
                 self.set_grain_state(x, y, i + 1)
         return self
 
@@ -217,7 +216,7 @@ class GrainField:
         result = '\n'
         for grain, x, y in range(self.width):
             for y in range(self.height):
-                grain = self.field[x][y]
+                grain = self[x, y]
                 result += '{} '.format(grain.state)
             result += '\n'
         return result
@@ -227,7 +226,7 @@ class GrainField:
         grains = []
         for x in range(self.width):
             for y in range(self.height):
-                grains.append(self.field[x][y])
+                grains.append(self[x, y])
 
         if not any([grain.state for grain in grains]):
             return result + ' (empty)'
@@ -238,6 +237,14 @@ class GrainField:
 
     def __bool__(self):
         return any([grain for grain in self.grains])
+
+    def __getitem__(self, item):
+        x, y = item
+        return self.field[y * self.width + x]
+
+    def __setitem__(self, key, value):
+        x, y = key
+        self[key] = value
 
 
 def random_field(size_x, size_y, num_of_grains):
