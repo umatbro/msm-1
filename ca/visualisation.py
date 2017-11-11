@@ -53,8 +53,15 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
         if lmb:
             print('pressed')
             gx, gy = mouse2grain_coords(pygame.mouse.get_pos(), resolution)
-            state = grain_field[gx, gy].prev_state
-            if state is not Grain.INCLUSION:
+            grain = grain_field[gx, gy]
+            state = grain.prev_state
+
+            if grain.locked:
+                # unlock it then
+                for cell in selected_cells[state]:
+                    cell.locked = False
+                del selected_cells[state]
+            elif state is not Grain.INCLUSION:
                 selected_cells[state] = grain_field.cells_of_state(state)
                 for cell in selected_cells[state]:  # type: Grain
                     cell.locked = True
@@ -79,7 +86,7 @@ def run(
         inclusions_size=1,
         type_of_inclusions='square',
         paused=False
-) -> GrainField:
+):
     """
     Run pygame window with visualisation
 
