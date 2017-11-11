@@ -207,7 +207,7 @@ class GrainField:
         :param num_of_grains: number of grains to be added.
         """
         for i in range(num_of_grains):
-            x, y = random.randrange(1, self.height), random.randrange(1, self.width),
+            x, y = random.randrange(1, self.width), random.randrange(1, self.height)
             if self[x, y].can_be_modified:
                 self.set_grain_state(x, y, i + 1)
         return self
@@ -238,6 +238,10 @@ class GrainField:
     def __bool__(self):
         return any([grain for grain in self.grains])
 
+    @property
+    def full(self):
+        return all([grain.state for grain in self.grains])
+
     def __getitem__(self, item):
         x, y = item
         return self.field[y * self.width + x]
@@ -257,4 +261,3 @@ def random_field(size_x, size_y, num_of_grains):
         )
 
     return field
-
