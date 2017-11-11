@@ -20,6 +20,7 @@ class Color:
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
     GREY = (125, 124, 125)
+    LIGHTPINK = (255, 182, 193)
 
     default_colors = [
         RED,

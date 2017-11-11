@@ -173,6 +173,15 @@ class GrainField:
                 # self[x, y].type = GrainType.INCLUSION
                 self[x, y].state = Grain.INCLUSION
 
+    def cells_of_state(self, state):
+        """
+        Get all cells of one state
+
+        :param state: state to be searched
+        :return: list with references to cells of given state
+        """
+        return [grain for grain in self.grains if grain.prev_state == state]
+
     def random_inclusions(self, num_of_inclusions, inclusion_size=1, inclusion_type='square'):
         """
         Add random inclusion to field. If field is not empty inclusions will be added on grain boundaries,

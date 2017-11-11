@@ -202,7 +202,7 @@ class MainWindow(QtWidgets.QMainWindow):
             }) if not self.grain_field else pool.apply_async(func=visualisation.run_field, args=(
                 self.grain_field, values.resolution, values.probability
             ))
-            res = async_result.get()
+            res, selected_cells = async_result.get()
             print(res)
             self.grain_field = res
             self.update_layout()

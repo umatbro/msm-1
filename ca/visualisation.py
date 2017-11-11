@@ -2,13 +2,14 @@ import sys
 
 import pygame
 
+from ca.grain import Grain
 from ca.grain_field import random_field, GrainField
 from files import export_image, export_text, import_text
 
 MAX_FRAMES = 60
 
 
-def run_field(grain_field: GrainField, resolution, probability=100,  paused=False) -> GrainField:
+def run_field(grain_field: GrainField, resolution, probability=100,  paused=False):
     pygame.init()
 
     window_width = grain_field.width * resolution
@@ -22,16 +23,18 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
     clock = pygame.time.Clock()
     total_time = 0
 
+    # selected cells
+    selected_cells = {}
     # main loop
     while 1337:
         for event in pygame.event.get():
             if event.type is pygame.QUIT:
                 pygame.quit()
-                return grain_field
+                return grain_field, selected_cells
                 sys.exit(0)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_ESCAPE:
                 pygame.quit()
-                return grain_field
+                return grain_field, selected_cells
                 sys.exit(0)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_SPACE:
                 grain_field.update(probability)
@@ -45,6 +48,16 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                 grain_field = import_text('field.txt')
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_p:
                 paused = not paused
+
+        lmb, rmb, mmb = pygame.mouse.get_pressed()
+        if lmb:
+            print('pressed')
+            gx, gy = mouse2grain_coords(pygame.mouse.get_pos(), resolution)
+            state = grain_field[gx, gy].prev_state
+            if state is not Grain.INCLUSION:
+                selected_cells[state] = grain_field.cells_of_state(state)
+                for cell in selected_cells[state]:  # type: Grain
+                    cell.locked = True
 
         total_time += clock.tick(MAX_FRAMES)
 
@@ -90,5 +103,12 @@ def run(
     return run_field(grain_field, resolution, probability, paused)
 
 
+def mouse2grain_coords(mpos, resolution):
+    """Get mouse coords and convert to field coords based on given resolution"""
+    mx, my = mpos
+    return mx//resolution, my//resolution
+
+
 if __name__ == '__main__':
-    run(300, 300, 3, 1, 100, 5, 'square')
+    # run(300, 300, 3, 1, 100, 5, 'square')
+    mouse2grain_coords((10, 10),1)
