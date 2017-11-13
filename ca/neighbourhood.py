@@ -44,7 +44,7 @@ def decide_by_4_rules(moore_neighbours: Neighbours, probability=50):
     """
     # rule 1
     mn = moore_neighbours
-    states = [grain.prev_state for grain in mn if grain is not Grain.OUT_OF_RANGE and grain.has_unq_state]
+    states = [grain.prev_state for grain in mn if grain is not Grain.OUT_OF_RANGE and grain.can_influence_neighbours]
     if states:
         counter = Counter(states)
         value, occurrences = max(counter.items(), key=operator.itemgetter(1))
@@ -53,7 +53,7 @@ def decide_by_4_rules(moore_neighbours: Neighbours, probability=50):
 
     # rule 2
     nearest_moore = [grain.prev_state for grain in (mn.left, mn.top, mn.right, mn.bot)
-                     if grain is not Grain.OUT_OF_RANGE and grain.has_unq_state]
+                     if grain is not Grain.OUT_OF_RANGE and grain.can_influence_neighbours]
     if nearest_moore:
         counter = Counter(nearest_moore)
         value, occurrences = max(counter.items(), key=operator.itemgetter(1))
@@ -62,7 +62,7 @@ def decide_by_4_rules(moore_neighbours: Neighbours, probability=50):
 
     # rule 3
     further_moore = [grain.prev_state for grain in (mn.topleft, mn.topright, mn.botright, mn.botleft)
-                     if grain is not Grain.OUT_OF_RANGE and grain]
+                     if grain is not Grain.OUT_OF_RANGE and grain.can_influence_neighbours]
     if further_moore:
         counter = Counter(further_moore)
         value, occurrences = max(counter.items(), key=operator.itemgetter(1))

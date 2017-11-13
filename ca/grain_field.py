@@ -182,6 +182,23 @@ class GrainField:
         """
         return [grain for grain in self.grains if grain.prev_state == state]
 
+    def clear_field(self, clear_locked=False, clear_inclusions=False):
+        """
+        Set all cell states to empty.
+        Do not change state of inclusions and locked cells (by default)
+
+        :param clear_locked: flag to determine whether locked cells should be cleared
+        :param clear_inclusions:
+        :return:
+        """
+        for grain in self.grains:
+            if not grain.locked:
+                grain.state = Grain.EMPTY
+            elif clear_locked:
+                grain.state = Grain.EMPTY
+            elif grain.state is Grain.INCLUSION and clear_inclusions:
+                grain.state = Grain.EMPTY
+
     def random_inclusions(self, num_of_inclusions, inclusion_size=1, inclusion_type='square'):
         """
         Add random inclusion to field. If field is not empty inclusions will be added on grain boundaries,

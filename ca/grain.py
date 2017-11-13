@@ -13,7 +13,10 @@ class Grain:
     EMPTY = 0
     INCLUSION = -1
     OUT_OF_RANGE = -2
-    LOCKED = -2
+    ALIVE = -3
+    LOCKED = -4
+    DUAL_PHASE = -5
+    SELECTED = -6
 
     @property
     def state(self):
@@ -24,22 +27,28 @@ class Grain:
         self.__state = value
         if self.state is Grain.INCLUSION:
             self.color = Color.BLACK
-            self.locked = True
+            self.lock_status = Grain.LOCKED
         else:
             self.color = Color.state_color(self.state)
 
     @property
-    def locked(self):
-        return self.__locked
+    def lock_status(self):
+        return self.__lock_status
 
-    @locked.setter
-    def locked(self, locked):
-        self.__locked = locked
-        self.color = Color.state_color(self.state) if not self.locked else Color.LIGHTPINK
+    @lock_status.setter
+    def lock_status(self, value):
+        self.__lock_status = value
+        if self.lock_status is Grain.SELECTED:
+            self.color = Color.LIGHTPINK
+        elif self.lock_status is Grain.DUAL_PHASE:
+            self.color = Color.GREY
+        else:
+            self.color = Color.state_color(self.state)
 
     def __init__(self, state=None):
         self.color = None
-        self.__locked = False
+        self.__lock_status = False
+
         self.__state = None
         if state is None:
             state = Grain.EMPTY
@@ -65,7 +74,7 @@ class Grain:
         :return: boolean indicating whether grain can influence other grains
         (meaning it is neither inclusion, nor locked)
         """
-        return self.state > Grain.EMPTY and not self.locked
+        return self.state > Grain.EMPTY and self.lock_status is not Grain.LOCKED
 
     @property
     def has_unq_state(self):

@@ -31,11 +31,11 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
             if event.type is pygame.QUIT:
                 pygame.quit()
                 return grain_field, selected_cells
-                sys.exit(0)
+                # sys.exit(0)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_ESCAPE:
                 pygame.quit()
                 return grain_field, selected_cells
-                sys.exit(0)
+                # sys.exit(0)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_SPACE:
                 grain_field.update(probability)
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_r:
@@ -48,23 +48,26 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                 grain_field = import_text('field.txt')
             elif event.type is pygame.KEYDOWN and event.key is pygame.K_p:
                 paused = not paused
+            elif event.type is pygame.MOUSEBUTTONDOWN:
+                # clicking on grains selects them
+                print('pressed')
+                gx, gy = mouse2grain_coords(pygame.mouse.get_pos(), resolution)
+                grain = grain_field[gx, gy]
+                state = grain.prev_state
 
-        lmb, rmb, mmb = pygame.mouse.get_pressed()
-        if lmb:
-            print('pressed')
-            gx, gy = mouse2grain_coords(pygame.mouse.get_pos(), resolution)
-            grain = grain_field[gx, gy]
-            state = grain.prev_state
+                if grain.lock_status is Grain.SELECTED:
+                    # unlock it then
+                    for cell in selected_cells[state]:
+                        cell.lock_status = Grain.ALIVE
+                    del selected_cells[state]
+                elif state is not Grain.INCLUSION:
+                    selected_cells[state] = grain_field.cells_of_state(state)
+                    for cell in selected_cells[state]:  # type: Grain
+                        cell.lock_status = Grain.SELECTED
 
-            if grain.locked:
-                # unlock it then
-                for cell in selected_cells[state]:
-                    cell.locked = False
-                del selected_cells[state]
-            elif state is not Grain.INCLUSION:
-                selected_cells[state] = grain_field.cells_of_state(state)
-                for cell in selected_cells[state]:  # type: Grain
-                    cell.locked = True
+        # lmb, rmb, mmb = pygame.mouse.get_pressed()
+        # if lmb:
+        #    pass
 
         total_time += clock.tick(MAX_FRAMES)
 
