@@ -4,4 +4,6 @@ __pychache__
 msm
 *.png
 *.txt
+*-venv
+*-env
 !requirements.txt
