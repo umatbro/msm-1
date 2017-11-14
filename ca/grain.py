@@ -26,8 +26,8 @@ class Grain:
     def state(self, value):
         self.__state = value
         if self.state is Grain.INCLUSION:
-            self.color = Color.BLACK
             self.lock_status = Grain.LOCKED
+            self.color = Color.BLACK
         else:
             self.color = Color.state_color(self.state)
 
