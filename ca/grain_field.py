@@ -182,22 +182,30 @@ class GrainField:
         """
         return [grain for grain in self.grains if grain.prev_state == state]
 
-    def clear_field(self, clear_locked=False, clear_inclusions=False):
+    def clear_field(self, dual_phase=False, clear_inclusions=False):
         """
         Set all cell states to empty.
         Do not change state of inclusions and locked cells (by default)
 
-        :param clear_locked: flag to determine whether locked cells should be cleared
         :param clear_inclusions:
+        :param dual_phase: if set to true, selected grains will be locked and set as dualphase
         :return:
         """
+        # first clear all cells that are neither locked nor selected
         for grain in self.grains:
-            if not grain.locked:
+            if grain.state is Grain.INCLUSION and clear_inclusions:
                 grain.state = Grain.EMPTY
-            elif clear_locked:
+                continue
+            if grain.lock_status is Grain.ALIVE and Grain.state is not Grain.INCLUSION:
                 grain.state = Grain.EMPTY
-            elif grain.state is Grain.INCLUSION and clear_inclusions:
-                grain.state = Grain.EMPTY
+                grain.prev_state = Grain.EMPTY
+
+        # then lock selected
+        for grain in self.grains:
+            if grain.lock_status is Grain.SELECTED:
+                grain.lock_status = Grain.LOCKED if not dual_phase else Grain.DUAL_PHASE
+
+        return self
 
     def random_inclusions(self, num_of_inclusions, inclusion_size=1, inclusion_type='square'):
         """

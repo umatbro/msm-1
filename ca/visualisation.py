@@ -1,5 +1,3 @@
-import sys
-
 import pygame
 
 from ca.grain import Grain
@@ -36,21 +34,23 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                 pygame.quit()
                 return grain_field, selected_cells
                 # sys.exit(0)
-            elif event.type is pygame.KEYDOWN and event.key is pygame.K_SPACE:
-                grain_field.update(probability)
-            elif event.type is pygame.KEYDOWN and event.key is pygame.K_r:
-                grain_field = random_field(grain_field.width, grain_field.height, 70)
-            elif event.type is pygame.KEYDOWN and event.key is pygame.K_i:
-                export_image(grain_field)
-            elif event.type is pygame.KEYDOWN and event.key is pygame.K_t:
-                export_text(grain_field)
-            elif event.type is pygame.KEYDOWN and event.key is pygame.K_l:
-                grain_field = import_text('field.txt')
-            elif event.type is pygame.KEYDOWN and event.key is pygame.K_p:
-                paused = not paused
+            elif event.type is pygame.KEYDOWN:
+                if event.key is pygame.K_SPACE:
+                    grain_field.update(probability)
+                elif event.key is pygame.K_r:
+                    grain_field = random_field(grain_field.width, grain_field.height, 70)
+                elif event.key is pygame.K_i:
+                    export_image(grain_field)
+                elif event.key is pygame.K_t:
+                    export_text(grain_field)
+                elif event.key is pygame.K_l:
+                    grain_field = import_text('field.txt')
+                elif event.key is pygame.K_p:
+                    paused = not paused
+                elif event.key is pygame.K_n:
+                    grain_field.clear_field(dual_phase=False)
             elif event.type is pygame.MOUSEBUTTONDOWN:
                 # clicking on grains selects them
-                print('pressed')
                 gx, gy = mouse2grain_coords(pygame.mouse.get_pos(), resolution)
                 grain = grain_field[gx, gy]
                 state = grain.prev_state
@@ -64,10 +64,7 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                     selected_cells[state] = grain_field.cells_of_state(state)
                     for cell in selected_cells[state]:  # type: Grain
                         cell.lock_status = Grain.SELECTED
-
-        # lmb, rmb, mmb = pygame.mouse.get_pressed()
-        # if lmb:
-        #    pass
+                print('selected {} (lock_state: {})'.format(state, grain.lock_status))
 
         total_time += clock.tick(MAX_FRAMES)
 
@@ -111,6 +108,16 @@ def run(
         .random_grains(num_of_grains)
 
     return run_field(grain_field, resolution, probability, paused)
+
+
+def rerun(grain_field, selected_cells, resolution, probability=50, paused=False, dual_phase=False):
+    """
+    Rerun grain field with locked grains
+    :return:
+    """
+    for state, list_of_cells in selected_cells:
+        for cell in list_of_cells:
+            cell.lock_status = Grain.LOCKED if not dual_phase else Grain.DUAL_PHASE
 
 
 def mouse2grain_coords(mpos, resolution):
