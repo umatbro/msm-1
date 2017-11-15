@@ -24,7 +24,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.init_center()
 
         self.setFixedSize(self.sizeHint())
-        self.setFixedWidth(300)
+        self.setFixedWidth(400)
 
         self.update_layout()
 
@@ -104,8 +104,19 @@ class MainWindow(QtWidgets.QMainWindow):
         # right pane
         right_pane = QtWidgets.QWidget(central_wrapper)
         self.probability = ProbabilityWidget(right_pane)
+        self.n_label = QtWidgets.QLabel('New number\nof nuclei')
+        self.new_num_of_nuclei_spinbox = QtWidgets.QSpinBox(right_pane)
+        self.new_num_of_nuclei_spinbox.setMinimum(0)
+        self.new_num_of_nuclei_spinbox.setSingleStep(10)
+        self.clear_button = QtWidgets.QPushButton('CA -> CA')
+        self.clear_button.clicked.connect(self.ca_visualisation)
+        self.dp_checkbox = QtWidgets.QCheckBox('Dual phase', right_pane)
         v_box_r = QtWidgets.QVBoxLayout(right_pane)
         v_box_r.addWidget(self.probability)
+        v_box_r.addWidget(self.n_label)
+        v_box_r.addWidget(self.new_num_of_nuclei_spinbox)
+        v_box_r.addWidget(self.dp_checkbox)
+        v_box_r.addWidget(self.clear_button)
 
         h_box = QtWidgets.QHBoxLayout(central_wrapper)
         h_box.addWidget(left_pane)
@@ -122,7 +133,8 @@ class MainWindow(QtWidgets.QMainWindow):
         :return: namedtuple with: width, height, nucleon_amount, resolution
         """
         Values = namedtuple('FieldValues', ['width', 'height', 'nucleon_amount', 'resolution', 'probability',
-                                            'inclusion_type', 'inclusion_amount', 'inclusion_size'])
+                                            'inclusion_type', 'inclusion_amount', 'inclusion_size', 'dual_phase',
+                                            'new_amount_of_nuclei'])
         return Values(
             width=self.grain_field_widget.x_input.value,
             height=self.grain_field_widget.y_input.value,
@@ -131,7 +143,9 @@ class MainWindow(QtWidgets.QMainWindow):
             inclusion_type=self.inclusion_widget.inclusion_type.value,
             inclusion_amount=self.inclusion_widget.inclusion_amount.value,
             inclusion_size=self.inclusion_widget.inclusion_size.value,
-            resolution=self.resolution_picker.resolution_input.value
+            resolution=self.resolution_picker.resolution_input.value,
+            dual_phase=self.dp_checkbox.isChecked(),
+            new_amount_of_nuclei=self.new_num_of_nuclei_spinbox.value()
         )
 
     def import_field(self):
@@ -198,7 +212,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 'resolution': values.resolution,
                 'num_of_inclusions': values.inclusion_amount,
                 'type_of_inclusions': values.inclusion_type,
-                'inclusions_size': values.inclusion_size
+                'inclusions_size': values.inclusion_size,
             }) if not self.grain_field else pool.apply_async(func=visualisation.run_field, args=(
                 self.grain_field, values.resolution, values.probability
             ))
@@ -216,6 +230,16 @@ class MainWindow(QtWidgets.QMainWindow):
             dialog.exec_()
 
         self.centralWidget().setEnabled(True)
+
+    def ca_visualisation(self):
+        """
+        Clear all grains that are not selected.
+        Then, generate random seeds again (take values from input fields)
+        """
+        values = self.get_values()
+        self.grain_field.clear_field(dual_phase=values.dual_phase)
+        self.grain_field.random_grains(values.new_amount_of_nuclei)
+        self.run_visualisation()
 
     def update_layout(self):
         if self.grain_field:

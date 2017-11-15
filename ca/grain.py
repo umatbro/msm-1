@@ -32,6 +32,7 @@ class Grain:
             self.color = Color.BLACK
 
         elif self.state is Grain.DUAL_PHASE:
+            self.lock_status = Grain.LOCKED
             self.color = Color.GREY
 
     @property
@@ -47,6 +48,8 @@ class Grain:
             self.state = Grain.DUAL_PHASE
         else:
             self.color = Color.state_color(self.state)
+            if self.state is Grain.DUAL_PHASE:
+                self.color = Color.GREY
 
     def __init__(self, state=None):
         self.color = None

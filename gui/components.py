@@ -144,7 +144,8 @@ class InclusionWidget(QWidget):
 class ProbabilityWidget(QWidget):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setFixedWidth(49)
+        self.setFixedWidth(90)
+        self.l1 = QLabel('Probability')
         self.label = QLabel('0%')
         self.probability = QSlider(Qt.Vertical)
         self.probability.setMinimum(0)
@@ -153,6 +154,7 @@ class ProbabilityWidget(QWidget):
         self.probability.setTickPosition(QSlider.TicksRight)
         self.probability.valueChanged.connect(lambda: self.label.setText('{}%'.format(self.probability.value())))
         v_box = QtWidgets.QVBoxLayout(self)
+        v_box.addWidget(self.l1)
         v_box.addWidget(self.label)
         v_box.addWidget(self.probability)
         self.setLayout(v_box)

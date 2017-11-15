@@ -242,8 +242,12 @@ class GrainField:
         """
         for i in range(num_of_grains):
             x, y = random.randrange(1, self.width), random.randrange(1, self.height)
-            if self[x, y].can_be_modified:
-                self.set_grain_state(x, y, i + 1)
+            # if self[x, y].can_be_modified:
+            #     self.set_grain_state(x, y, i + 1)
+            while self[x, y].lock_status is not Grain.ALIVE:
+                x, y = random.randrange(1, self.width), random.randrange(1, self.height)
+
+            self.set_grain_state(x, y, i + 1)
         return self
 
     def print_field(self):

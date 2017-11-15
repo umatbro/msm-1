@@ -48,7 +48,7 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                 elif event.key is pygame.K_p:
                     paused = not paused
                 elif event.key is pygame.K_n:
-                    grain_field.clear_field(dual_phase=False)
+                    grain_field.clear_field(dual_phase=True)
             elif event.type is pygame.MOUSEBUTTONDOWN:
                 # clicking on grains selects them
                 gx, gy = mouse2grain_coords(pygame.mouse.get_pos(), resolution)
