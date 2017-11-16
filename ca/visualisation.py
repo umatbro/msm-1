@@ -49,6 +49,11 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                     paused = not paused
                 elif event.key is pygame.K_n:
                     grain_field.clear_field(dual_phase=True)
+                elif event.key is pygame.K_b:
+                    points = grain_field.grains_boundaries_points
+                    for point in points:
+                        grain_field[point].state = Grain.INCLUSION
+                    print(grain_field.grain_boundary_percentage)
             elif event.type is pygame.MOUSEBUTTONDOWN:
                 # clicking on grains selects them
                 gx, gy = mouse2grain_coords(pygame.mouse.get_pos(), resolution)

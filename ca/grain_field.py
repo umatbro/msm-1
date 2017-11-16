@@ -56,6 +56,17 @@ class GrainField:
                     if neighbour is not Grain.OUT_OF_RANGE
                 ])]
 
+    @property
+    def grain_boundary_percentage(self):
+        """
+        :return: The percent of cells that are occupied by INCLUSION state
+        """
+        # count grain boundary points
+        gb_amount = 0
+        for grain in self.grains:
+            gb_amount += 1 if grain.state is Grain.INCLUSION else 0
+        return gb_amount / len(self.grains)
+
     def von_neumann(self, x, y):
         """
         Check grain neighbours in x, y coordinates
@@ -181,6 +192,17 @@ class GrainField:
         :return: list with references to cells of given state
         """
         return [grain for grain in self.grains if grain.prev_state == state]
+
+    def cells_of_state_boundary_points(self, state):
+        """
+        :param state: state to be searched
+        :return: list of cells laying on the boundary
+        """
+        cells = self.cells_of_state(state)
+        # return [x for cell in cells if any([
+        #             neighbour.state != grain.state for neighbour in self.moore_neighbourhood(x, y)
+        #             if neighbour is not Grain.OUT_OF_RANGE
+        #         ])]
 
     def clear_field(self, dual_phase=False, clear_inclusions=False):
         """
