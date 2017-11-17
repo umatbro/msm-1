@@ -51,6 +51,7 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                     grain_field.clear_field(dual_phase=True)
                 elif event.key is pygame.K_b:
                     points = grain_field.grains_boundaries_points
+                    # points = grain_field.cells_of_state_boundary_points(1)
                     for point in points:
                         grain_field[point].state = Grain.INCLUSION
                     print(grain_field.grain_boundary_percentage)

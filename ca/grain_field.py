@@ -50,11 +50,20 @@ class GrainField:
         :return: point coordinates that lay on grain boundaries.
         Points where neighbour state is different than own are returned.
         """
-        return [(x, y) for grain, x, y in self.grains_and_coords if
-                any([
-                    neighbour.state != grain.state for neighbour in self.moore_neighbourhood(x, y)
-                    if neighbour is not Grain.OUT_OF_RANGE
-                ])]
+        result = []
+        already_in = set()
+        for grain, x, y in self.grains_and_coords:
+            if any([neighbour.state != grain.state and neighbour not in already_in
+                    for neighbour in self.moore_neighbourhood(x, y) if neighbour is not Grain.OUT_OF_RANGE]):
+                result.append((x, y))
+            already_in.add(grain)
+
+        return result
+        # return [(x, y) for grain, x, y in self.grains_and_coords if
+        #         any([
+        #             neighbour.state != grain.state for neighbour in self.moore_neighbourhood(x, y)
+        #             if neighbour is not Grain.OUT_OF_RANGE
+        #         ])]
 
     @property
     def grain_boundary_percentage(self):
@@ -193,16 +202,19 @@ class GrainField:
         """
         return [grain for grain in self.grains if grain.prev_state == state]
 
+    def cells_and_coords_of_state(self, state):
+        return [(grain, x, y) for grain, x, y in self.grains_and_coords if grain.prev_state == state]
+
     def cells_of_state_boundary_points(self, state):
         """
         :param state: state to be searched
         :return: list of cells laying on the boundary
         """
-        cells = self.cells_of_state(state)
-        # return [x for cell in cells if any([
-        #             neighbour.state != grain.state for neighbour in self.moore_neighbourhood(x, y)
-        #             if neighbour is not Grain.OUT_OF_RANGE
-        #         ])]
+        cells = self.cells_and_coords_of_state(state)
+        return [(x, y) for grain, x, y in cells if any([
+                    neighbour.state != grain.state for neighbour in self.moore_neighbourhood(x, y)
+                    if neighbour is not Grain.OUT_OF_RANGE
+                ])]
 
     def clear_field(self, dual_phase=False, clear_inclusions=False):
         """
