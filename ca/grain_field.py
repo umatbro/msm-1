@@ -322,6 +322,9 @@ class GrainField:
         x, y = key
         self[key] = value
 
+    def __iter__(self):
+        return self.field.__iter__()
+
 
 def random_field(size_x, size_y, num_of_grains):
     field = GrainField(size_x, size_y)

@@ -1,8 +1,10 @@
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QLabel, QLineEdit, QWidget, QHBoxLayout, QComboBox, QSpinBox, QPushButton, QSlider
+from PyQt5.QtWidgets import QLabel, QLineEdit, QWidget, QHBoxLayout, QComboBox, QSpinBox, QPushButton, QSlider, \
+    QRadioButton
 from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QIntValidator
 from gui.utils import add_widgets_to_layout
+from enum import auto
 
 
 class LabelLineEdit(QWidget):
@@ -167,6 +169,33 @@ class ProbabilityWidget(QWidget):
     @value.setter
     def value(self, val):
         self.probability.setValue(val)
+
+
+class BoundaryWidget(QWidget):
+    ALL = auto()
+    SELECTED = auto()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label = QLabel('Boundaries')
+        self.all_boundaries_radio = QRadioButton('all')
+        self.all_boundaries_radio.setChecked(True)
+        self.selected_boundaries_radio = QRadioButton('selected grains')
+
+        v_box = QtWidgets.QVBoxLayout(self)
+        v_box.addWidget(self.label)
+        v_box.addWidget(self.all_boundaries_radio)
+        v_box.addWidget(self.selected_boundaries_radio)
+        self.setLayout(v_box)
+
+    @property
+    def value(self):
+        if self.all_boundaries_radio.isChecked():
+            return BoundaryWidget.ALL
+        elif self.selected_boundaries_radio.isChecked():
+            return BoundaryWidget.SELECTED
+        else:
+            return None
 
 
 def separator(parent):

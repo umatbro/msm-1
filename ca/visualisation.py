@@ -50,7 +50,14 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                 elif event.key is pygame.K_n:
                     grain_field.clear_field(dual_phase=True)
                 elif event.key is pygame.K_b:
-                    points = grain_field.grains_boundaries_points
+                    points = []
+                    if not any([grain.lock_status is Grain.SELECTED for grain in grain_field]):
+                        points = grain_field.grains_boundaries_points
+                    else:
+                        for state, cells in selected_cells.items():
+                            points.extend(grain_field.cells_of_state_boundary_points(state))
+                            for cell in cells:
+                                cell.lock_status = Grain.ALIVE
                     # points = grain_field.cells_of_state_boundary_points(1)
                     for point in points:
                         grain_field[point].state = Grain.INCLUSION
