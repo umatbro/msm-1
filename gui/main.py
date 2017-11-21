@@ -232,6 +232,7 @@ class MainWindow(QtWidgets.QMainWindow):
         sleep(0.5)
         try:
             values = self.get_values()
+            self.hide()
             pool = ThreadPool(processes=1)
             # if field is empty start analysis on random field, else continue analyzing current field
             async_result = pool.apply_async(func=visualisation.run, kwds={
@@ -248,7 +249,7 @@ class MainWindow(QtWidgets.QMainWindow):
             ))
             self.grain_field, self.selected_cells = async_result.get()
             print(self.grain_field)
-
+            self.show()
             self.update_layout()
             self.update_status_bar()
         except ValueError as e:
