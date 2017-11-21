@@ -7,3 +7,4 @@ msm
 *-venv
 *-env
 !requirements.txt
+docs/_build
