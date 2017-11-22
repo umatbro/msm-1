@@ -9,3 +9,5 @@ Multiscale modeling project
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   imp/gui
