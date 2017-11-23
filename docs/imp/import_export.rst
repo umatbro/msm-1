@@ -38,6 +38,7 @@ Example text file
     0 18 42
     (...)
 
+:download:`Download example txt <../_static/200_200example.txt>`
 
 Images
 ------
@@ -51,4 +52,11 @@ Example image
 .. image:: ../_static/example_image.png
     :scale: 150%
 
-:download:`Download <../_static/example_image.png>`
+:download:`Download example image <../_static/example_image.png>`
+
+Code
+-----
+
+.. automodule:: files
+    :members:
+    :undoc-members:

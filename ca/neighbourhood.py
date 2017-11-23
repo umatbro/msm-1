@@ -33,13 +33,14 @@ def decide_state(neighbours):
 def decide_by_4_rules(moore_neighbours: Neighbours, probability=50):
     """
     Update grain field according to 4 consecutive rules:
+
     1. Moore (5-8 cells)
     2. Nearest Moore (min 3 neighbour cells)
     3. Further Moore (min 3 neighbour cells)
-    4. Id of cell depends on cell of all neighbours and
+    4. Id of cell depends on cell of all neighbours and probability
 
-    :param moore_neighbours:
-    :param probability:
+    :param moore_neighbours: all 8 Moore neighbours
+    :param probability: value used to calculate 4th rule
     :return: output state of the cell (based on neighbours or *None* if state could not be chosen
     """
     # rule 1
@@ -71,6 +72,6 @@ def decide_by_4_rules(moore_neighbours: Neighbours, probability=50):
 
     # rule 4
     try:
-        return random.choice(states) if random.randint(0, 100) < probability else None
+        return random.choice(states) if random.randint(0, 100) <= probability else None
     except IndexError:
         return None

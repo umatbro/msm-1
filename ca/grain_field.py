@@ -48,7 +48,6 @@ class GrainField:
     def grains_boundaries_points(self):
         """
         :return: point coordinates that lay on grain boundaries.
-        Points where neighbour state is different than own are returned.
         """
         result = []
         already_in = set()
@@ -248,7 +247,7 @@ class GrainField:
 
         :param num_of_inclusions: number of inclusion to be added
         :param inclusion_size: characteristic dimension (radius for circle, side length for square)
-        :param inclusion_type: can be either square or circle
+        :param inclusion_type: can be either ``'square'`` or ``'circle'``
         :return: self
         """
         if not self:  # if field is empty - put inclusions wherever
