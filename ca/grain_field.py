@@ -1,6 +1,8 @@
 import random
 from collections import namedtuple
 
+import numpy as np
+
 import pygame
 from ca.color import Color
 from geometry import pixels as px
@@ -19,6 +21,7 @@ class GrainField:
 
         # init list
         self.field = [Grain() for y in range(self.height) for x in range(self.width)]
+        self.field = np.reshape(np.array(self.field), (self.width, self.height))
 
     @property
     def grains(self):
@@ -315,7 +318,8 @@ class GrainField:
 
     def __getitem__(self, item):
         x, y = item
-        return self.field[y * self.width + x]
+        # return self.field[y * self.width + x]
+        return self.field[x, y]
 
     def __setitem__(self, key, value):
         x, y = key
