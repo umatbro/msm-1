@@ -1,0 +1,349 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Inclusions &mdash; msm-proj 1.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="msm-proj 1.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="MSM project" href="gui.html"/>
+        <link rel="next" title="Boundary shape control" href="boundary_shape.html"/>
+        <link rel="prev" title="Grain growth" href="graingrowth.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> msm-proj
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introductions.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gui.html">MSM project</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="import_export.html">Import and export functionality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graingrowth.html">Grain growth</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Inclusions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#code">Code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="boundary_shape.html">Boundary shape control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substructure.html">Substructure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boundaries.html">Grain boundaries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="summary.html">Summary</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">msm-proj</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="gui.html">MSM project</a> &raquo;</li>
+        
+      <li>Inclusions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/imp/inclusions.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="inclusions">
+<h1>Inclusions<a class="headerlink" href="#inclusions" title="Permalink to this headline">¶</a></h1>
+<p>Inclusions functionality involves:</p>
+<ul class="simple">
+<li>adding inclusions:<ul>
+<li>before starting simulation</li>
+<li>after simulation, when the field is filled with grains. Inclusions are added on <a class="reference internal" href="boundaries.html"><span class="doc">grain boundaries</span></a> in this case.</li>
+</ul>
+</li>
+<li>different shapes of inclusions<ul>
+<li>square</li>
+<li>circle</li>
+</ul>
+</li>
+</ul>
+<p>Cells which represent inclusion do not affect neighbour cells.
+This means that if we add inclusion it will not grow and will not be modified throughout simulation.</p>
+<p><strong>Image 4</strong> (below) presents few circle and square inclusions added <em>after</em> filling grain field (after simulation).</p>
+<a class="reference internal image-reference" href="../_images/inclusions.png"><img alt="../_images/inclusions.png" src="../_images/inclusions.png" style="width: 450.0px; height: 470.25px;" /></a>
+<p><strong>Image 4</strong> Field visualisation after adding inclusions</p>
+<div class="section" id="code">
+<h2>Code<a class="headerlink" href="#code" title="Permalink to this headline">¶</a></h2>
+<p>Method responsible for adding inclusions</p>
+<dl class="class">
+<dt id="ca.grain_field.GrainField">
+<em class="property">class </em><code class="descclassname">ca.grain_field.</code><code class="descname">GrainField</code><span class="sig-paren">(</span><em>x_size</em>, <em>y_size</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ca/grain_field.html#GrainField"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ca.grain_field.GrainField" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="ca.grain_field.GrainField.random_inclusions">
+<code class="descname">random_inclusions</code><span class="sig-paren">(</span><em>num_of_inclusions</em>, <em>inclusion_size=1</em>, <em>inclusion_type='square'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/ca/grain_field.html#GrainField.random_inclusions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#ca.grain_field.GrainField.random_inclusions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add random inclusion to field. If field is not empty inclusions will be added on grain boundaries,
+otherwise inclusions will appear in random places.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>num_of_inclusions</strong> – number of inclusion to be added</li>
+<li><strong>inclusion_size</strong> – characteristic dimension (radius for circle, side length for square)</li>
+<li><strong>inclusion_type</strong> – can be either <code class="docutils literal"><span class="pre">'square'</span></code> or <code class="docutils literal"><span class="pre">'circle'</span></code></li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">self</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<p>Functions for finding calculating coordinates</p>
+<dl class="function">
+<dt id="geometry.pixels.circle">
+<code class="descclassname">geometry.pixels.</code><code class="descname">circle</code><span class="sig-paren">(</span><em>x_center</em>, <em>y_center</em>, <em>radius</em>, <em>filled=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry/pixels.html#circle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.pixels.circle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get pixels to draw a circle</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x_center</strong> – x coordinate of circle center</li>
+<li><strong>y_center</strong> – y coordinate of circle center</li>
+<li><strong>radius</strong> – radius of the circle</li>
+<li><strong>filled</strong> – if false only pixels on the border will be returned</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">pixels belonging to the circle</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="geometry.pixels.rectangle">
+<code class="descclassname">geometry.pixels.</code><code class="descname">rectangle</code><span class="sig-paren">(</span><em>x</em>, <em>y</em>, <em>w</em>, <em>h</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/geometry/pixels.html#rectangle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#geometry.pixels.rectangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get pixels to draw a rectangle</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> – top left corner x</li>
+<li><strong>y</strong> – top left corner y</li>
+<li><strong>w</strong> – width of the rectangle</li>
+<li><strong>h</strong> – height of the rectangle</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">all pixels belonging to rectangle as (x, y) tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="boundary_shape.html" class="btn btn-neutral float-right" title="Boundary shape control" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="graingrowth.html" class="btn btn-neutral" title="Grain growth" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, umat.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,567 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>ca.grain_field &mdash; msm-proj 1.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../../genindex.html"/>
+        <link rel="search" title="Search" href="../../search.html"/>
+    <link rel="top" title="msm-proj 1.0.1 documentation" href="../../index.html"/>
+        <link rel="up" title="Module code" href="../index.html"/> 
+
+  
+  <script src="../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> msm-proj
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../imp/introductions.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../imp/gui.html">MSM project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../imp/summary.html">Summary</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">msm-proj</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>ca.grain_field</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for ca.grain_field</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">namedtuple</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">import</span> <span class="nn">pygame</span>
+<span class="kn">from</span> <span class="nn">ca.color</span> <span class="k">import</span> <span class="n">Color</span>
+<span class="kn">from</span> <span class="nn">geometry</span> <span class="k">import</span> <span class="n">pixels</span> <span class="k">as</span> <span class="n">px</span>
+
+<span class="kn">from</span> <span class="nn">ca.grain</span> <span class="k">import</span> <span class="n">Grain</span><span class="p">,</span> <span class="n">GrainType</span>
+<span class="kn">from</span> <span class="nn">ca.neighbourhood</span> <span class="k">import</span> <span class="n">decide_state</span><span class="p">,</span> <span class="n">decide_by_4_rules</span><span class="p">,</span> <span class="n">Neighbours</span>
+
+
+<div class="viewcode-block" id="GrainField"><a class="viewcode-back" href="../../imp/inclusions.html#ca.grain_field.GrainField">[docs]</a><span class="k">class</span> <span class="nc">GrainField</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x_size</span><span class="p">,</span> <span class="n">y_size</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">x_size</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">y_size</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">float</span><span class="p">:</span>
+            <span class="n">x_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">x_size</span><span class="p">)</span>
+            <span class="n">y_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">y_size</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="n">x_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="n">y_size</span>
+
+        <span class="c1"># init list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="p">[</span><span class="n">Grain</span><span class="p">()</span> <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">field</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">grains</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: all grains in the field</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">grains</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+                <span class="n">grains</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">grains</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">grains_and_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: 3 element tuple (grain, x, y) where grain is Grain object, x, y are coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">],</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">grains_boundaries_points</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: point coordinates that lay on grain boundaries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">already_in</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">grain</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains_and_coords</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">neighbour</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="ow">and</span> <span class="n">neighbour</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">already_in</span>
+                    <span class="k">for</span> <span class="n">neighbour</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moore_neighbourhood</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">if</span> <span class="n">neighbour</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">]):</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+            <span class="n">already_in</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">grain</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+        <span class="c1"># return [(x, y) for grain, x, y in self.grains_and_coords if</span>
+        <span class="c1">#         any([</span>
+        <span class="c1">#             neighbour.state != grain.state for neighbour in self.moore_neighbourhood(x, y)</span>
+        <span class="c1">#             if neighbour is not Grain.OUT_OF_RANGE</span>
+        <span class="c1">#         ])]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">grain_boundary_percentage</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return: The percent of cells that are occupied by INCLUSION state</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># count grain boundary points</span>
+        <span class="n">gb_amount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">grain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains</span><span class="p">:</span>
+            <span class="n">gb_amount</span> <span class="o">+=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="ow">is</span> <span class="n">Grain</span><span class="o">.</span><span class="n">INCLUSION</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">gb_amount</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grains</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">von_neumann</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check grain neighbours in x, y coordinates</span>
+
+<span class="sd">        :return: tuple (left, top, right, bottom)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">x</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># left</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># top</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># right</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># bottom</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">moore_neighbourhood</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get Moore neighbourhood of cell in given x, y coordinates</span>
+
+<span class="sd">        :return: tuple with Grain objects (left, top-left, top, top-right, right, bottom-right, bottom, bottom-left)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Neighbours</span><span class="p">(</span>
+            <span class="n">left</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># left</span>
+            <span class="n">topleft</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># top-left</span>
+            <span class="n">top</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># top</span>
+            <span class="n">topright</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># top-right</span>
+            <span class="n">right</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># right</span>
+            <span class="n">botright</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># bottom-right</span>
+            <span class="n">bot</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># bottom</span>
+            <span class="n">botleft</span><span class="o">=</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span>  <span class="c1"># bottom-left</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">further_moore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get further moore neighbours of cell in given x, y coordinates</span>
+
+<span class="sd">        :return: tuple with Grain objects (top-left, top-right, bottom-right, bottom-left)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># top-left</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># top-right</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">-</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span><span class="p">,</span>  <span class="c1"># bottom-right</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">y</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">y</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">-</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span>  <span class="c1"># bottom-left</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        update grain field state within 1 time step</span>
+
+<span class="sd">        :param probability: probability used in rule 4 from decide_state method</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># go through all grains</span>
+        <span class="c1"># check state - if prev state is not none go next</span>
+        <span class="c1"># if prev state is none check neighbours and set state</span>
+        <span class="c1"># update prev state</span>
+        <span class="k">for</span> <span class="n">grain</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains_and_coords</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">grain</span><span class="o">.</span><span class="n">can_be_modified</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="c1"># neighbours = self.von_neumann(x, y)</span>
+            <span class="c1"># decided_state = decide_state(neighbours)</span>
+            <span class="n">neighbours</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">moore_neighbourhood</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+            <span class="n">decided_state</span> <span class="o">=</span> <span class="n">decide_by_4_rules</span><span class="p">(</span><span class="n">neighbours</span><span class="p">,</span> <span class="n">probability</span><span class="p">)</span>
+            <span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">decided_state</span> <span class="k">if</span> <span class="n">decided_state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">grain</span><span class="o">.</span><span class="n">prev_state</span>
+
+        <span class="c1"># after all current states are set - update prev state</span>
+        <span class="k">for</span> <span class="n">grain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains</span><span class="p">:</span>
+            <span class="n">grain</span><span class="o">.</span><span class="n">prev_state</span> <span class="o">=</span> <span class="n">grain</span><span class="o">.</span><span class="n">state</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">display</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">screen</span><span class="p">,</span> <span class="n">resolution</span><span class="p">):</span>
+        <span class="n">rect</span> <span class="o">=</span> <span class="n">pygame</span><span class="o">.</span><span class="n">Rect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">resolution</span><span class="p">,</span> <span class="n">resolution</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">grain</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains_and_coords</span><span class="p">:</span>
+            <span class="n">rect</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="n">resolution</span>
+            <span class="n">color</span> <span class="o">=</span> <span class="n">grain</span><span class="o">.</span><span class="n">color</span>
+            <span class="n">rect</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">*</span> <span class="n">resolution</span>
+            <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">rect</span><span class="p">)</span>
+            <span class="c1"># if resolution is less than 5 don&#39;t draw borders</span>
+            <span class="k">if</span> <span class="n">resolution</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="n">pygame</span><span class="o">.</span><span class="n">draw</span><span class="o">.</span><span class="n">rect</span><span class="p">(</span><span class="n">screen</span><span class="p">,</span> <span class="n">Color</span><span class="o">.</span><span class="n">BLACK</span><span class="p">,</span> <span class="n">rect</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">set_grain_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="n">grain</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span>  <span class="c1"># type: Grain</span>
+        <span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+        <span class="n">grain</span><span class="o">.</span><span class="n">prev_state</span> <span class="o">=</span> <span class="n">grain</span><span class="o">.</span><span class="n">state</span>
+
+    <span class="k">def</span> <span class="nf">set_grains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pixels</span><span class="p">,</span> <span class="n">grain_type</span><span class="p">:</span> <span class="n">GrainType</span><span class="p">,</span> <span class="n">grain_state</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">pixels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">&gt;</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">&gt;</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">grain</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span>
+                <span class="n">grain</span><span class="o">.</span><span class="n">type</span> <span class="o">=</span> <span class="n">grain_type</span>
+                <span class="n">grain</span><span class="o">.</span><span class="n">prev_state</span> <span class="o">=</span> <span class="n">grain_state</span>
+
+    <span class="k">def</span> <span class="nf">add_inclusion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">location</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;square&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add single inclusion to the field</span>
+
+<span class="sd">        :param location: tuple with (x, y) location of the inclusion</span>
+<span class="sd">        :param size: in case of the square - length of the side, circle - radius</span>
+<span class="sd">        :param type: either &#39;circle&#39; or &#39;square&#39; (must be a string)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">type</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">type</span> <span class="o">!=</span> <span class="s1">&#39;square&#39;</span> <span class="ow">and</span> <span class="nb">type</span> <span class="o">!=</span> <span class="s1">&#39;circle&#39;</span><span class="p">:</span>
+            <span class="nb">type</span> <span class="o">=</span> <span class="s1">&#39;square&#39;</span>
+
+        <span class="n">x_</span><span class="p">,</span> <span class="n">y_</span> <span class="o">=</span> <span class="n">location</span>
+        <span class="n">coords</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;square&#39;</span><span class="p">:</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="nb">type</span> <span class="o">==</span> <span class="s1">&#39;circle&#39;</span><span class="p">:</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">circle</span><span class="p">(</span><span class="n">x_</span><span class="p">,</span> <span class="n">y_</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">coords</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span> <span class="o">&gt;</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span> <span class="o">&gt;</span> <span class="n">y</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># self[x, y].type = GrainType.INCLUSION</span>
+                <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">Grain</span><span class="o">.</span><span class="n">INCLUSION</span>
+
+    <span class="k">def</span> <span class="nf">cells_of_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all cells of one state</span>
+
+<span class="sd">        :param state: state to be searched</span>
+<span class="sd">        :return: list with references to cells of given state</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">grain</span> <span class="k">for</span> <span class="n">grain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains</span> <span class="k">if</span> <span class="n">grain</span><span class="o">.</span><span class="n">prev_state</span> <span class="o">==</span> <span class="n">state</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">cells_and_coords_of_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">grain</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">grain</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains_and_coords</span> <span class="k">if</span> <span class="n">grain</span><span class="o">.</span><span class="n">prev_state</span> <span class="o">==</span> <span class="n">state</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">cells_of_state_boundary_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :param state: state to be searched</span>
+<span class="sd">        :return: list of cells laying on the boundary</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cells_and_coords_of_state</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span> <span class="k">for</span> <span class="n">grain</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="n">cells</span> <span class="k">if</span> <span class="nb">any</span><span class="p">([</span>
+                    <span class="n">neighbour</span><span class="o">.</span><span class="n">state</span> <span class="o">!=</span> <span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="k">for</span> <span class="n">neighbour</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">moore_neighbourhood</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">neighbour</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Grain</span><span class="o">.</span><span class="n">OUT_OF_RANGE</span>
+                <span class="p">])]</span>
+
+    <span class="k">def</span> <span class="nf">clear_field</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dual_phase</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">clear_inclusions</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set all cell states to empty.</span>
+<span class="sd">        Do not change state of inclusions and locked cells (by default)</span>
+
+<span class="sd">        :param clear_inclusions:</span>
+<span class="sd">        :param dual_phase: if set to true, selected grains will be locked and set as dualphase</span>
+<span class="sd">        :return:</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># first clear all cells that are neither locked nor selected</span>
+        <span class="k">for</span> <span class="n">grain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="ow">is</span> <span class="n">Grain</span><span class="o">.</span><span class="n">INCLUSION</span> <span class="ow">and</span> <span class="n">clear_inclusions</span><span class="p">:</span>
+                <span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">Grain</span><span class="o">.</span><span class="n">EMPTY</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">grain</span><span class="o">.</span><span class="n">lock_status</span> <span class="ow">is</span> <span class="n">Grain</span><span class="o">.</span><span class="n">ALIVE</span> <span class="ow">and</span> <span class="n">Grain</span><span class="o">.</span><span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Grain</span><span class="o">.</span><span class="n">INCLUSION</span><span class="p">:</span>
+                <span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">Grain</span><span class="o">.</span><span class="n">EMPTY</span>
+                <span class="n">grain</span><span class="o">.</span><span class="n">prev_state</span> <span class="o">=</span> <span class="n">Grain</span><span class="o">.</span><span class="n">EMPTY</span>
+
+        <span class="c1"># then lock selected</span>
+        <span class="k">for</span> <span class="n">grain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">grain</span><span class="o">.</span><span class="n">lock_status</span> <span class="ow">is</span> <span class="n">Grain</span><span class="o">.</span><span class="n">SELECTED</span><span class="p">:</span>
+                <span class="n">grain</span><span class="o">.</span><span class="n">lock_status</span> <span class="o">=</span> <span class="n">Grain</span><span class="o">.</span><span class="n">LOCKED</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">dual_phase</span> <span class="k">else</span> <span class="n">Grain</span><span class="o">.</span><span class="n">DUAL_PHASE</span>
+
+        <span class="k">return</span> <span class="bp">self</span>
+
+<div class="viewcode-block" id="GrainField.random_inclusions"><a class="viewcode-back" href="../../imp/inclusions.html#ca.grain_field.GrainField.random_inclusions">[docs]</a>    <span class="k">def</span> <span class="nf">random_inclusions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_of_inclusions</span><span class="p">,</span> <span class="n">inclusion_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inclusion_type</span><span class="o">=</span><span class="s1">&#39;square&#39;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add random inclusion to field. If field is not empty inclusions will be added on grain boundaries,</span>
+<span class="sd">        otherwise inclusions will appear in random places.</span>
+
+<span class="sd">        :param num_of_inclusions: number of inclusion to be added</span>
+<span class="sd">        :param inclusion_size: characteristic dimension (radius for circle, side length for square)</span>
+<span class="sd">        :param inclusion_type: can be either ``&#39;square&#39;`` or ``&#39;circle&#39;``</span>
+<span class="sd">        :return: self</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="p">:</span>  <span class="c1"># if field is empty - put inclusions wherever</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_of_inclusions</span><span class="p">):</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_inclusion</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">inclusion_size</span><span class="p">,</span> <span class="n">inclusion_type</span><span class="p">)</span>
+
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># else put them on grain boundaries</span>
+            <span class="n">available_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains_boundaries_points</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_of_inclusions</span><span class="p">):</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">available_points</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">add_inclusion</span><span class="p">(</span>
+                    <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inclusion_size</span><span class="o">//</span><span class="mi">2</span><span class="p">),</span> <span class="n">y</span> <span class="o">-</span> <span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">inclusion_size</span><span class="o">//</span><span class="mi">2</span><span class="p">)),</span>
+                    <span class="n">inclusion_size</span><span class="p">,</span>
+                    <span class="n">inclusion_type</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">random_grains</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_of_grains</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add random grains to the field.</span>
+
+<span class="sd">        :param num_of_grains: number of grains to be added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_of_grains</span><span class="p">):</span>
+            <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+            <span class="c1"># if self[x, y].can_be_modified:</span>
+            <span class="c1">#     self.set_grain_state(x, y, i + 1)</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">lock_status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">Grain</span><span class="o">.</span><span class="n">ALIVE</span><span class="p">:</span>
+                <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">),</span> <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_grain_state</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">print_field</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">for</span> <span class="n">grain</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+                <span class="n">grain</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1"> &#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">grain</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="s1">&#39;Field </span><span class="si">{}</span><span class="s1"> x </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">)</span>
+        <span class="n">grains</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">width</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+                <span class="n">grains</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">([</span><span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="k">for</span> <span class="n">grain</span> <span class="ow">in</span> <span class="n">grains</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="s1">&#39; (empty)&#39;</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="k">for</span> <span class="n">grain</span> <span class="ow">in</span> <span class="n">grains</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="s1">&#39; (not full)&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">result</span> <span class="o">+</span> <span class="s1">&#39; (full)&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">grain</span> <span class="k">for</span> <span class="n">grain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">full</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">([</span><span class="n">grain</span><span class="o">.</span><span class="n">state</span> <span class="k">for</span> <span class="n">grain</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">grains</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">item</span>
+        <span class="c1"># return self.field[y * self.width + x]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">key</span>
+        <span class="bp">self</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">field</span><span class="o">.</span><span class="fm">__iter__</span><span class="p">()</span></div>
+
+
+<span class="k">def</span> <span class="nf">random_field</span><span class="p">(</span><span class="n">size_x</span><span class="p">,</span> <span class="n">size_y</span><span class="p">,</span> <span class="n">num_of_grains</span><span class="p">):</span>
+    <span class="n">field</span> <span class="o">=</span> <span class="n">GrainField</span><span class="p">(</span><span class="n">size_x</span><span class="p">,</span> <span class="n">size_y</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_of_grains</span><span class="p">):</span>
+        <span class="n">field</span><span class="o">.</span><span class="n">set_grain_state</span><span class="p">(</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">size_x</span><span class="p">),</span>
+            <span class="n">random</span><span class="o">.</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">size_y</span><span class="p">),</span>
+            <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">field</span>
+</pre></div>
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, umat.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

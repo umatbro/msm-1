@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Import and export functionality &mdash; msm-proj 1.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+        <link rel="index" title="Index"
+              href="../genindex.html"/>
+        <link rel="search" title="Search" href="../search.html"/>
+    <link rel="top" title="msm-proj 1.0.1 documentation" href="../index.html"/>
+        <link rel="up" title="MSM project" href="gui.html"/>
+        <link rel="next" title="Grain growth" href="graingrowth.html"/>
+        <link rel="prev" title="MSM project" href="gui.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> msm-proj
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                1.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introductions.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="gui.html">MSM project</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Import and export functionality</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#export-to-text">Export to text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#images">Images</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-files">Code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="graingrowth.html">Grain growth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="inclusions.html">Inclusions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boundary_shape.html">Boundary shape control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="substructure.html">Substructure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="boundaries.html">Grain boundaries</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="summary.html">Summary</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">msm-proj</a>
+        
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="gui.html">MSM project</a> &raquo;</li>
+        
+      <li>Import and export functionality</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/imp/import_export.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="import-and-export-functionality">
+<h1>Import and export functionality<a class="headerlink" href="#import-and-export-functionality" title="Permalink to this headline">¶</a></h1>
+<p>Results obtained during simulation can be exported to either text file or image.
+Exported files can be imported and simulation may be continued.</p>
+<div class="section" id="export-to-text">
+<h2>Export to text<a class="headerlink" href="#export-to-text" title="Permalink to this headline">¶</a></h2>
+<p>Text files are formatted in such way:</p>
+<ul class="simple">
+<li>first line contains field dimensions (width, height)</li>
+<li>following lines contain <strong>(x, y)</strong> coordinates and <strong>ids</strong> assigned to them</li>
+</ul>
+<p>Text file being result of exporting field after simulation.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">200</span> <span class="mi">200</span>
+<span class="mi">0</span> <span class="mi">0</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">1</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">2</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">3</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">4</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">5</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">6</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">7</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">8</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">9</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">10</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">11</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">12</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">13</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">14</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">15</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">16</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">17</span> <span class="mi">42</span>
+<span class="mi">0</span> <span class="mi">18</span> <span class="mi">42</span>
+<span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><a class="reference download internal" href="../_downloads/200_200example.txt" download=""><code class="xref download docutils literal"><span class="pre">Download</span> <span class="pre">example</span> <span class="pre">txt</span></code></a></p>
+</div>
+<div class="section" id="images">
+<h2>Images<a class="headerlink" href="#images" title="Permalink to this headline">¶</a></h2>
+<p>Image export is pretty straightforward - what you see on the screen gets imported to <strong>.png</strong> file.</p>
+<p>Saved images can also be imported.</p>
+<p>Image file after exporting from application is presented on <strong>Image 2</strong>.</p>
+<a class="reference internal image-reference" href="../_images/example_image.png"><img alt="../_images/example_image.png" src="../_images/example_image.png" style="width: 150.0px; height: 150.0px;" /></a>
+<p><strong>Image 2</strong> image of 100x100 field that will be saved on hard drive</p>
+<p><a class="reference download internal" href="../_downloads/example_image.png" download=""><code class="xref download docutils literal"><span class="pre">Download</span> <span class="pre">example</span> <span class="pre">image</span></code></a></p>
+</div>
+<div class="section" id="module-files">
+<span id="code"></span><h2>Code<a class="headerlink" href="#module-files" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="files.export_image">
+<code class="descclassname">files.</code><code class="descname">export_image</code><span class="sig-paren">(</span><em>grain_field: ca.grain_field.GrainField</em>, <em>path_file='field_img.png'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/files.html#export_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#files.export_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export grain field as a png image</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>grain_field</strong> – GrainField object to be exported</li>
+<li><strong>path_file</strong> – path to save the image</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="files.export_text">
+<code class="descclassname">files.</code><code class="descname">export_text</code><span class="sig-paren">(</span><em>grain_field: ca.grain_field.GrainField</em>, <em>path_file='field.txt'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/files.html#export_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#files.export_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export grain field to a text file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>grain_field</strong> – GrainField object to be exported</li>
+<li><strong>path_file</strong> – path to the file</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>First line of the file contains grid dimensions.
+Following lines: &lt;x&gt; &lt;y&gt; &lt;state&gt;</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="files.import_img">
+<code class="descclassname">files.</code><code class="descname">import_img</code><span class="sig-paren">(</span><em>source: str</em><span class="sig-paren">)</span> &#x2192; ca.grain_field.GrainField<a class="reference internal" href="../_modules/files.html#import_img"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#files.import_img" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="files.import_text">
+<code class="descclassname">files.</code><code class="descname">import_text</code><span class="sig-paren">(</span><em>source: str</em><span class="sig-paren">)</span> &#x2192; ca.grain_field.GrainField<a class="reference internal" href="../_modules/files.html#import_text"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#files.import_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read text file and get grain field stored in it</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>source</strong> – path to the file</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">GrainField object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           <div class="articleComments">
+            
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="graingrowth.html" class="btn btn-neutral float-right" title="Grain growth" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="gui.html" class="btn btn-neutral" title="MSM project" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, umat.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1.0.1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
