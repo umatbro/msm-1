@@ -2,12 +2,7 @@
 __pychache__
 .idea
 msm
-*.png
-*.txt
 *-venv
 *-env
 !requirements.txt
-docs/_build
-!docs/*.png
-!docs/imp/*.png
-!docs/_static/*.png
+docs/*
