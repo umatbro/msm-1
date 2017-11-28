@@ -12,7 +12,7 @@ Text files are formatted in such way:
 * first line contains field dimensions (width, height)
 * following lines contain **(x, y)** coordinates and **ids** assigned to them
 
-Example text file
+Text file being result of exporting field after simulation.
 
 ::
 
@@ -47,10 +47,12 @@ Image export is pretty straightforward - what you see on the screen gets importe
 
 Saved images can also be imported.
 
-Example image
+Image file after exporting from application is presented on **Image 2**.
 
 .. image:: ../_static/example_image.png
     :scale: 150%
+
+**Image 2** image of 100x100 field that will be saved on hard drive
 
 :download:`Download example image <../_static/example_image.png>`
 

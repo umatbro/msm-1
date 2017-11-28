@@ -17,10 +17,12 @@ Inclusions functionality involves:
 Cells which represent inclusion do not affect neighbour cells.
 This means that if we add inclusion it will not grow and will not be modified throughout simulation.
 
-Image below presents few circle and square inclusions added *after* filling grain field (after simulation).
+**Image 4** (below) presents few circle and square inclusions added *after* filling grain field (after simulation).
 
 .. image:: ../_static/inclusions.png
     :scale: 75%
+
+**Image 4** Field visualisation after adding inclusions
 
 Code
 -----

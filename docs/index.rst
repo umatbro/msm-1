@@ -10,4 +10,6 @@ Multiscale modeling project
    :maxdepth: 2
    :caption: Contents:
 
+   imp/introductions
    imp/gui
+   imp/summary

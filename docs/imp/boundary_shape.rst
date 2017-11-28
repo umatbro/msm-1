@@ -3,11 +3,13 @@ Boundary shape control
 
 **Probability** slider lets user to control the shape of grain boundaries in some way.
 
-Comparison between simulation results for **probability** values set to **99%** (left) and **1%** (right)
+Comparison between simulation results for **probability** values set to **99%** (left) and **1%** (right) (**Image 5**).
 
 .. image:: ../_static/99.png
     :alt: Boundary shapes comparison for different percentage values
     :scale: 100%
+
+**Image 5** difference between different probability settings
 
 Algorithm
 -----------

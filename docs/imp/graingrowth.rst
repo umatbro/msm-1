@@ -10,3 +10,5 @@ After pressing ``start`` button, visualisation will start running.
 .. image:: visualisation1.png
     :scale: 75%
     :alt: Visualisation results
+
+**Image 3** Result of grain growth simulation (100x100 field)

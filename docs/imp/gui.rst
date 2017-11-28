@@ -1,9 +1,13 @@
 MSM project
 ===========
 
+Main application window is presented below (**Image 1**)
+
 .. image:: gui.png
     :alt: Main program GUI
     :scale: 75%
+
+**Image 1** Application's GUI
 
 Highlighted GUI elements serve different purposes
 
