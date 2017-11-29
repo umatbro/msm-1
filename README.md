@@ -1,3 +1,3 @@
-[reqiurements](http://home.agh.edu.pl/~msitko/multiscale-modelling/)
+## MSM project part 1
 
-[part1](http://home.agh.edu.pl/~msitko/wordpress/wp-content/uploads/MSM-2017-18-Class-1.pdf)
+[Documents](https://umatbro.github.io/msm-1/)
