@@ -77,6 +77,10 @@ class GrainField:
         for grain in self.grains:
             gb_amount += 1 if grain.state is Grain.INCLUSION else 0
         return gb_amount / len(self.grains)
+		
+	@property
+	def full(self):
+		return all([grain.state for grain in self.grains])
 
     def von_neumann(self, x, y):
         """
@@ -159,9 +163,8 @@ class GrainField:
 
     def set_grain_state(self, x, y, state):
         grain = self[x, y]  # type: Grain
-        grain.state = state
-        grain.prev_state = grain.state
-
+        grain.state, grain.prev_state = state, grain.state
+	
     def set_grains(self, pixels, grain_type: GrainType, grain_state=0):
         for x, y in pixels:
             if self.width > x >= 0 and self.height > y >= 0:
@@ -285,6 +288,15 @@ class GrainField:
 
             self.set_grain_state(x, y, i + 1)
         return self
+		
+	def fill_field_with_random_cells(self, num_of_states):
+		"""
+		Fill all field cells with random ids.
+		
+		:param num_of_states: number of unique ids that will occur in the field
+		"""
+		for grain in self.grains:
+			grain.state = random.randrange(1, num_of_state)
 
     def print_field(self):
         result = '\n'
@@ -311,10 +323,6 @@ class GrainField:
 
     def __bool__(self):
         return any([grain for grain in self.grains])
-
-    @property
-    def full(self):
-        return all([grain.state for grain in self.grains])
 
     def __getitem__(self, item):
         x, y = item
