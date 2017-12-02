@@ -2,13 +2,6 @@ from enum import Enum
 from ca.color import Color
 
 
-class GrainType(Enum):
-    INCLUSION = 'inclusion'
-    GRAIN = 'grain'
-    OUT_OF_RANGE = 'out of range'
-    EMPTY = None
-
-
 class Grain:
     EMPTY = 0
     INCLUSION = -1
@@ -32,41 +25,17 @@ class Grain:
             self.color = Color.BLACK
 
         elif self.state is Grain.DUAL_PHASE:
-            self.lock_status = Grain.LOCKED
             self.color = Color.GREY
-
-    @property
-    def lock_status(self):
-        return self.__lock_status
-
-    @lock_status.setter
-    def lock_status(self, value):
-        self.__lock_status = value
-        if self.lock_status is Grain.SELECTED:
-            self.color = Color.LIGHTPINK
-        elif self.lock_status is Grain.DUAL_PHASE:
-            self.state = Grain.DUAL_PHASE
-        else:
-            self.color = Color.state_color(self.state)
-            if self.state is Grain.DUAL_PHASE:
-                self.color = Color.GREY
 
     def __init__(self, state=None):
         self.color = None
-        self.__lock_status = None
         self.__state = None
 
         if state is None:
             state = Grain.EMPTY
-        self.lock_status = Grain.ALIVE
-        self.prev_state = state
+        # self.lock_status = Grain.ALIVE
+        # self.prev_state = state
         self.state = state
-
-    # @property
-    # def color(self):
-    #     if self.state is Grain.INCLUSION:
-    #         return Color.BLACK
-    #     return Color.state_color(self.state)
 
     @property
     def can_be_modified(self) -> bool:
@@ -85,13 +54,10 @@ class Grain:
 
     @property
     def has_unq_state(self):
-        return self.prev_state > Grain.EMPTY
-
-    def toggle_selected(self):
-        self.lock_status = Grain.SELECTED if self.lock_status is Grain.ALIVE else Grain.ALIVE
+        return self.state > Grain.EMPTY
 
     def __str__(self):
         return str(self.state)
 
     def __bool__(self):
-        return self.prev_state > Grain.EMPTY or self.lock_status < Grain.ALIVE
+        return self.state > Grain.EMPTY

@@ -7,7 +7,7 @@ import pygame
 from ca.color import Color
 from geometry import pixels as px
 
-from ca.grain import Grain, GrainType
+from ca.grain import Grain
 from ca.neighbourhood import decide_state, decide_by_4_rules, Neighbours
 
 
@@ -77,10 +77,10 @@ class GrainField:
         for grain in self.grains:
             gb_amount += 1 if grain.state is Grain.INCLUSION else 0
         return gb_amount / len(self.grains)
-		
-	@property
-	def full(self):
-		return all([grain.state for grain in self.grains])
+
+        @property
+        def full(self):
+            return all([grain.state for grain in self.grains])
 
     def von_neumann(self, x, y):
         """
@@ -102,14 +102,15 @@ class GrainField:
         :return: tuple with Grain objects (left, top-left, top, top-right, right, bottom-right, bottom, bottom-left)
         """
         return Neighbours(
-            left=self[x-1, y] if x > 0 else Grain.OUT_OF_RANGE,  # left
-            topleft=self[x-1, y-1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
-            top=self[x, y-1] if y > 0 else Grain.OUT_OF_RANGE,  # top
-            topright=self[x+1, y-1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
-            right=self[x+1, y] if x < self.width - 1 else Grain.OUT_OF_RANGE,  # right
-            botright=self[x+1, y+1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom-right
-            bot=self[x, y+1] if y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom
-            botleft=self[x-1, y+1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
+            left=self[x - 1, y] if x > 0 else Grain.OUT_OF_RANGE,  # left
+            topleft=self[x - 1, y - 1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
+            top=self[x, y - 1] if y > 0 else Grain.OUT_OF_RANGE,  # top
+            topright=self[x + 1, y - 1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
+            right=self[x + 1, y] if x < self.width - 1 else Grain.OUT_OF_RANGE,  # right
+            botright=self[x + 1, y + 1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,
+            # bottom-right
+            bot=self[x, y + 1] if y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom
+            botleft=self[x - 1, y + 1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
         )
 
     def further_moore(self, x, y):
@@ -119,36 +120,14 @@ class GrainField:
         :return: tuple with Grain objects (top-left, top-right, bottom-right, bottom-left)
         """
         return (
-            self[x-1, y-1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
-            self[x+1, y-1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
-            self[x+1, y+1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom-right
-            self[x-1, y+1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
+            self[x - 1, y - 1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
+            self[x + 1, y - 1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
+            self[x + 1, y + 1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom-right
+            self[x - 1, y + 1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
         )
 
-    def update(self, probability=100):
-        """
-        update grain field state within 1 time step
-
-        :param probability: probability used in rule 4 from decide_state method
-        """
-        # go through all grains
-        # check state - if prev state is not none go next
-        # if prev state is none check neighbours and set state
-        # update prev state
-        for grain, x, y in self.grains_and_coords:
-            if not grain.can_be_modified:
-                continue
-            # neighbours = self.von_neumann(x, y)
-            # decided_state = decide_state(neighbours)
-            neighbours = self.moore_neighbourhood(x, y)
-            decided_state = decide_by_4_rules(neighbours, probability)
-            grain.state = decided_state if decided_state is not None else grain.prev_state
-
-        # after all current states are set - update prev state
-        for grain in self.grains:
-            grain.prev_state = grain.state
-
-        return self
+    def update(self):
+        pass
 
     def display(self, screen, resolution):
         rect = pygame.Rect(0, 0, resolution, resolution)
@@ -164,13 +143,6 @@ class GrainField:
     def set_grain_state(self, x, y, state):
         grain = self[x, y]  # type: Grain
         grain.state, grain.prev_state = state, grain.state
-	
-    def set_grains(self, pixels, grain_type: GrainType, grain_state=0):
-        for x, y in pixels:
-            if self.width > x >= 0 and self.height > y >= 0:
-                grain = self[x, y]
-                grain.type = grain_type
-                grain.prev_state = grain_state
 
     def add_inclusion(self, location, size, type='square'):
         """
@@ -217,9 +189,9 @@ class GrainField:
         """
         cells = self.cells_and_coords_of_state(state)
         return [(x, y) for grain, x, y in cells if any([
-                    neighbour.state != grain.state for neighbour in self.moore_neighbourhood(x, y)
-                    if neighbour is not Grain.OUT_OF_RANGE
-                ])]
+            neighbour.state != grain.state for neighbour in self.moore_neighbourhood(x, y)
+            if neighbour is not Grain.OUT_OF_RANGE
+        ])]
 
     def clear_field(self, dual_phase=False, clear_inclusions=False):
         """
@@ -266,7 +238,7 @@ class GrainField:
             for i in range(num_of_inclusions):
                 x, y = random.choice(available_points)
                 self.add_inclusion(
-                    (x - random.randint(0, inclusion_size//2), y - random.randint(0, inclusion_size//2)),
+                    (x - random.randint(0, inclusion_size // 2), y - random.randint(0, inclusion_size // 2)),
                     inclusion_size,
                     inclusion_type
                 )
@@ -288,15 +260,15 @@ class GrainField:
 
             self.set_grain_state(x, y, i + 1)
         return self
-		
-	def fill_field_with_random_cells(self, num_of_states):
-		"""
-		Fill all field cells with random ids.
-		
-		:param num_of_states: number of unique ids that will occur in the field
-		"""
-		for grain in self.grains:
-			grain.state = random.randrange(1, num_of_state)
+
+    def fill_field_with_random_cells(self, num_of_states):
+        """
+        Fill all field cells with random ids.
+
+        :param num_of_states: number of unique ids that will occur in the field
+        """
+        for grain in self.grains:
+            grain.state = random.randrange(1, num_of_states + 1)
 
     def print_field(self):
         result = '\n'
