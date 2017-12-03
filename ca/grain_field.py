@@ -22,6 +22,7 @@ class GrainField:
         # init list
         self.field = [Grain() for y in range(self.height) for x in range(self.width)]
         self.field = np.reshape(np.array(self.field), (self.width, self.height))
+        self.coords_list = [(x, y) for y in range(self.height) for x in range(self.width)]
 
     @property
     def grains(self):
@@ -29,8 +30,9 @@ class GrainField:
         :return: all grains in the field
         """
         grains = []
-        for x in range(self.width):
-            for y in range(self.height):
+        x_size, y_size = self.field.shape
+        for x in range(x_size):
+            for y in range(y_size):
                 grains.append(self[x, y])
 
         return grains
@@ -41,8 +43,8 @@ class GrainField:
         :return: 3 element tuple (grain, x, y) where grain is Grain object, x, y are coordinates
         """
         result = []
-        for x in range(self.width):
-            for y in range(self.height):
+        for x in range(self.field.shape[0]):
+            for y in range(self.field.shape[1]):
                 result.append((self[x, y], x, y))
 
         return result
@@ -102,15 +104,14 @@ class GrainField:
         :return: tuple with Grain objects (left, top-left, top, top-right, right, bottom-right, bottom, bottom-left)
         """
         return Neighbours(
-            left=self[x - 1, y] if x > 0 else Grain.OUT_OF_RANGE,  # left
-            topleft=self[x - 1, y - 1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
-            top=self[x, y - 1] if y > 0 else Grain.OUT_OF_RANGE,  # top
-            topright=self[x + 1, y - 1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
-            right=self[x + 1, y] if x < self.width - 1 else Grain.OUT_OF_RANGE,  # right
-            botright=self[x + 1, y + 1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,
-            # bottom-right
-            bot=self[x, y + 1] if y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom
-            botleft=self[x - 1, y + 1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
+            left=self[x - 1, y],  # left
+            topleft=self[x - 1, y - 1],  # top-left
+            top=self[x, y - 1],  # top
+            topright=self[x + 1, y - 1],  # top-right
+            right=self[x + 1, y],  # right
+            botright=self[x + 1, y + 1],  # bottom-right
+            bot=self[x, y + 1],  # bottom
+            botleft=self[x - 1, y + 1]  # bottom-left
         )
 
     def further_moore(self, x, y):
@@ -126,8 +127,44 @@ class GrainField:
             self[x - 1, y + 1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
         )
 
+    def boundary_energy(self, x, y, state=None):
+        """
+        Calculate boundary energy
+
+        :param x: coord
+        :param y: coord
+        :param state: state of current cell (if not provided it will be fetched automatically)
+        """
+        if state is None:
+            state = self[x, y].state
+        result = 0
+        for neighbour in self.moore_neighbourhood(x, y):
+            try:
+                result += 1 if neighbour.state is not state else 0
+            except AttributeError:  # is risen when neighbour is Grain.OUT_OF_RANGE
+                pass
+        return result
+
     def update(self):
-        pass
+        np.random.shuffle(self.coords_list)
+        for x, y in self.coords_list:
+            neighbours = self.moore_neighbourhood(x, y)
+            if all([n.state is self[x, y].state for n in neighbours if n is not Grain.OUT_OF_RANGE]):
+                continue
+            energy_before = self.boundary_energy(x, y)
+            while True:
+                choice = random.choice(neighbours)
+                try:
+                    if choice.state is self[x, y].state:
+                        continue
+                except AttributeError:
+                    continue
+                else:
+                    energy_after = self.boundary_energy(x, y, choice.state)
+                    break
+            de = energy_after - energy_before
+            if de <= 0:
+                self[x, y].state = choice.state
 
     def display(self, screen, resolution):
         rect = pygame.Rect(0, 0, resolution, resolution)
@@ -297,9 +334,12 @@ class GrainField:
         return any([grain for grain in self.grains])
 
     def __getitem__(self, item):
-        x, y = item
+        # x, y = item
         # return self.field[y * self.width + x]
-        return self.field[x, y]
+        try:
+            return self.field[item[0], item[1]]
+        except IndexError:
+            return Grain.OUT_OF_RANGE
 
     def __setitem__(self, key, value):
         x, y = key

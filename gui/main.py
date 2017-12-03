@@ -7,6 +7,7 @@ from ca import visualisation, grain_field
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from ca.grain import Grain
+from ca.grain_field import GrainField
 from gui.components import InclusionWidget, GrainFieldSetterWidget, separator, ResolutionWidget, ProbabilityWidget, \
     BoundaryWidget
 from gui.utils import add_widgets_to_layout
@@ -207,6 +208,7 @@ class MainWindow(QtWidgets.QMainWindow):
         values = self.get_values()
         self.hide()
         if not self.grain_field:
+            self.grain_field = GrainField(values.width, values.height)
             self.grain_field.fill_field_with_random_cells(values.nucleon_amount)
         pool = ThreadPool(processes=1)
         # if field is empty start analysis on random field, else continue analyzing current field
