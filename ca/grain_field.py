@@ -63,11 +63,6 @@ class GrainField:
             already_in.add(grain)
 
         return result
-        # return [(x, y) for grain, x, y in self.grains_and_coords if
-        #         any([
-        #             neighbour.state != grain.state for neighbour in self.moore_neighbourhood(x, y)
-        #             if neighbour is not Grain.OUT_OF_RANGE
-        #         ])]
 
     @property
     def grain_boundary_percentage(self):
@@ -80,9 +75,9 @@ class GrainField:
             gb_amount += 1 if grain.state is Grain.INCLUSION else 0
         return gb_amount / len(self.grains)
 
-        @property
-        def full(self):
-            return all([grain.state for grain in self.grains])
+    @property
+    def full(self):
+        return all([grain.state for grain in self.grains])
 
     def von_neumann(self, x, y):
         """
@@ -131,9 +126,9 @@ class GrainField:
         """
         Calculate boundary energy
 
-        :param x: coord
-        :param y: coord
-        :param state: state of current cell (if not provided it will be fetched automatically)
+        :param x: coord :param y: coord
+        :param state: state of current cell, can be set to a future cell state (if
+        not provided it will be fetched automatically)
         """
         if state is None:
             state = self[x, y].state

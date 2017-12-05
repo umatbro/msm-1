@@ -7,7 +7,16 @@ from files import export_image, export_text, import_text
 MAX_FRAMES = 60
 
 
-def run_field(grain_field: GrainField, resolution, paused=False):
+def run_field(grain_field: GrainField, resolution, paused=False, iterations_limit=20):
+    """
+    Visualise grain field
+
+    :param grain_field: field to be visualized
+    :param resolution: length of square side (in pixels)
+    :param paused: whether simulation starts paused or not
+    :param iterations_limit: number of iterations after which visualisation will pause
+    :return: grain field object after visualisation
+    """
     pygame.init()
 
     window_width = grain_field.width * resolution
@@ -23,6 +32,9 @@ def run_field(grain_field: GrainField, resolution, paused=False):
 
     # selected cells
     selected_cells = {}
+    iterations = 0
+    iterations_num_font = pygame.font.SysFont('monospace', 48 if resolution >= 6 else 24, bold=True)
+
     # main loop
     while 1337:
         for event in pygame.event.get():
@@ -62,10 +74,19 @@ def run_field(grain_field: GrainField, resolution, paused=False):
         total_time += clock.tick(MAX_FRAMES)
 
         # m_pos = pygame.mouse.get_pos()
+        # display iterations
+        label = iterations_num_font.render('{}'.format(iterations), 1, (0, 0, 0))
+
         if not paused:
             grain_field.update()
+            iterations += 1
+
+        # iterations
+        if iterations is iterations_limit:
+            paused = True
 
         grain_field.display(screen, resolution)
+        screen.blit(label, (window_width - 80, window_height - 80))
         pygame.display.update()
 
 
