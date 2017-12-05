@@ -123,7 +123,8 @@ class MainWindow(QtWidgets.QMainWindow):
         :return: namedtuple with: width, height, nucleon_amount, resolution
         """
         Values = namedtuple('FieldValues', ['width', 'height', 'nucleon_amount', 'resolution',
-                                            'inclusion_type', 'inclusion_amount', 'inclusion_size'])
+                                            'inclusion_type', 'inclusion_amount', 'inclusion_size',
+                                            'max_iterations'])
         return Values(
             width=self.grain_field_widget.x_input.value,
             height=self.grain_field_widget.y_input.value,
@@ -132,6 +133,7 @@ class MainWindow(QtWidgets.QMainWindow):
             inclusion_amount=self.inclusion_widget.inclusion_amount.value,
             inclusion_size=self.inclusion_widget.inclusion_size.value,
             resolution=self.resolution_picker.resolution_input.value,
+            max_iterations=self.grain_field_widget.max_iterations.value,
         )
 
     def import_field(self):
@@ -215,7 +217,8 @@ class MainWindow(QtWidgets.QMainWindow):
         async_result = pool.apply_async(func=visualisation.run_field, kwds={
             'grain_field': self.grain_field,
             'resolution': values.resolution,
-            'paused': False
+            'paused': False,
+            'iterations_limit': values.max_iterations,
         })
         self.grain_field, self.selected_cells = async_result.get()
         print(self.grain_field)
@@ -261,6 +264,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.grain_field_widget.x_input.value = 100
         self.grain_field_widget.y_input.value = 100
         self.grain_field_widget.nucleon_amount.value = 10
+        self.grain_field_widget.max_iterations.value = 10
 
         # inclusions
         self.inclusion_widget.inclusion_size.value = 1

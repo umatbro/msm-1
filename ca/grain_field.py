@@ -145,15 +145,15 @@ class GrainField:
         for x, y in self.coords_list:
             neighbours = self.moore_neighbourhood(x, y)
             if all([n.state is self[x, y].state for n in neighbours if n is not Grain.OUT_OF_RANGE]):
-                continue
+                continue  # all neighbours are same state as considered cells - there will be no change
             energy_before = self.boundary_energy(x, y)
             while True:
                 choice = random.choice(neighbours)
                 try:
                     if choice.state is self[x, y].state:
-                        continue
+                        continue  # choice has the same state as currently considered cell
                 except AttributeError:
-                    continue
+                    continue  # Grain.OUT_OF_RANGE was chosen
                 else:
                     energy_after = self.boundary_energy(x, y, choice.state)
                     break
