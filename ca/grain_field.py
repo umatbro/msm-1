@@ -116,17 +116,18 @@ class GrainField:
         :return: tuple with Grain objects (top-left, top-right, bottom-right, bottom-left)
         """
         return (
-            self[x - 1, y - 1] if x > 0 and y > 0 else Grain.OUT_OF_RANGE,  # top-left
-            self[x + 1, y - 1] if x < self.width - 1 and y > 0 else Grain.OUT_OF_RANGE,  # top-right
-            self[x + 1, y + 1] if x < self.width - 1 and y < self.height - 1 else Grain.OUT_OF_RANGE,  # bottom-right
-            self[x - 1, y + 1] if x > 0 and y < self.height - 1 else Grain.OUT_OF_RANGE  # bottom-left
+            self[x - 1, y - 1],  # top-left
+            self[x + 1, y - 1],  # top-right
+            self[x + 1, y + 1],  # bottom-right
+            self[x - 1, y + 1],  # bottom-left
         )
 
     def boundary_energy(self, x, y, state=None):
         """
         Calculate boundary energy
 
-        :param x: coord :param y: coord
+        :param x: coord
+        :param y: coord
         :param state: state of current cell, can be set to a future cell state (if
         not provided it will be fetched automatically)
         """
@@ -140,7 +141,12 @@ class GrainField:
                 pass
         return result
 
-    def update(self):
+    def update_mc(self):
+        """
+        Update field using Monte Carlo method.
+
+        :return: self
+        """
         np.random.shuffle(self.coords_list)
         for x, y in self.coords_list:
             neighbours = self.moore_neighbourhood(x, y)
@@ -160,6 +166,8 @@ class GrainField:
             de = energy_after - energy_before
             if de <= 0:
                 self[x, y].state = choice.state
+
+        return self
 
     def display(self, screen, resolution):
         rect = pygame.Rect(0, 0, resolution, resolution)

@@ -78,7 +78,7 @@ def run_field(grain_field: GrainField, resolution, paused=False, iterations_limi
         label = iterations_num_font.render('{}'.format(iterations), 1, (0, 0, 0))
 
         if not paused:
-            grain_field.update()
+            grain_field.update_mc()
             iterations += 1
 
         # iterations

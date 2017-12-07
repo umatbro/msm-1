@@ -91,7 +91,7 @@ class GrainFieldSetterWidget(QWidget):
         self.x_input = LabelSpinBox(self, 'Width: ')
         self.y_input = LabelSpinBox(self, 'Height: ')
         self.nucleon_amount = LabelSpinBox(self, 'Nucleon amount: ', 10000)
-        self.max_iterations = LabelSpinBox(self, 'Iterations', 10000, 1)
+        self.max_iterations = LabelSpinBox(self, 'Iterations', 10000, 0)
         # self.probability = LabelSpinBox(self, 'Probability', 100, 1)
         # self.probability = QSlider(Qt.Horizontal)
         # self.probability.setMinimum(0)
