@@ -2,7 +2,7 @@ from collections import namedtuple, defaultdict
 from PIL import Image
 
 from ca.grain_field import GrainField
-from ca.grain import Grain
+from ca.grain import Grain, GrainType
 
 
 def export_text(grain_field: GrainField, path_file='field.txt'):

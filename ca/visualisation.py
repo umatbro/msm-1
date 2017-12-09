@@ -7,7 +7,7 @@ from files import export_image, export_text, import_text
 MAX_FRAMES = 60
 
 
-def run_field(grain_field: GrainField, resolution, paused=False, iterations_limit=20):
+def run_field(grain_field: GrainField, resolution, probability=100,  paused=False):
     """
     Visualise grain field
 
@@ -48,7 +48,7 @@ def run_field(grain_field: GrainField, resolution, paused=False, iterations_limi
                 # sys.exit(0)
             elif event.type is pygame.KEYDOWN:
                 if event.key is pygame.K_SPACE:
-                    grain_field.update()
+                    grain_field.update_ca(probability)
                 elif event.key is pygame.K_r:
                     grain_field = random_field(grain_field.width, grain_field.height, 70)
                 elif event.key is pygame.K_i:
@@ -70,6 +70,26 @@ def run_field(grain_field: GrainField, resolution, paused=False, iterations_limi
                             points.extend(grain_field.cells_of_state_boundary_points(state))
                             for cell in cells:
                                 cell.lock_status = Grain.ALIVE
+                    # points = grain_field.cells_of_state_boundary_points(1)
+                    for point in points:
+                        grain_field[point].state = Grain.INCLUSION
+                    print(grain_field.grain_boundary_percentage)
+            elif event.type is pygame.MOUSEBUTTONDOWN:
+                # clicking on grains selects them
+                gx, gy = mouse2grain_coords(pygame.mouse.get_pos(), resolution)
+                grain = grain_field[gx, gy]
+                state = grain.prev_state
+
+                if grain.lock_status is Grain.SELECTED:
+                    # unlock it then
+                    for cell in selected_cells[state]:
+                        cell.lock_status = Grain.ALIVE
+                    del selected_cells[state]
+                elif state is not Grain.INCLUSION:
+                    selected_cells[state] = grain_field.cells_of_state(state)
+                    for cell in selected_cells[state]:  # type: Grain
+                        cell.lock_status = Grain.SELECTED
+                print('selected {} (lock_state: {})'.format(state, grain.lock_status))
 
         total_time += clock.tick(MAX_FRAMES)
 
@@ -78,12 +98,15 @@ def run_field(grain_field: GrainField, resolution, paused=False, iterations_limi
         label = iterations_num_font.render('{}'.format(iterations), 1, (0, 0, 0))
 
         if not paused:
-            grain_field.update_mc()
+            grain_field.update_ca(probability)
             iterations += 1
-
-        # iterations
-        if iterations is iterations_limit:
-            paused = True
+        # if not paused:
+        #     grain_field.update_mc()
+        #     iterations += 1
+        #
+        # # iterations
+        # if iterations is iterations_limit:
+        #     paused = True
 
         grain_field.display(screen, resolution)
         screen.blit(label, (window_width - 80, window_height - 80))
@@ -121,7 +144,7 @@ def run(
         .random_inclusions(num_of_inclusions, inclusions_size, type_of_inclusions)\
         .random_grains(num_of_grains)
 
-    return run_field(grain_field, resolution, paused)
+    return run_field(grain_field, resolution, probability, paused)
 
 
 def mouse2grain_coords(mpos, resolution):

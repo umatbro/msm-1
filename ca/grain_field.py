@@ -7,7 +7,7 @@ import pygame
 from ca.color import Color
 from geometry import pixels as px
 
-from ca.grain import Grain
+from ca.grain import Grain, GrainType
 from ca.neighbourhood import decide_state, decide_by_4_rules, Neighbours
 
 
@@ -169,6 +169,29 @@ class GrainField:
 
         return self
 
+    def update_ca(self, probability=100):
+        """
+        update grain field state within 1 time step
+
+        :param probability: probability used in rule 4 from decide_state method
+        """
+        # go through all grains
+        # check state - if prev state is not none go next
+        # if prev state is none check neighbours and set state
+        # update prev state
+        for grain, x, y in self.grains_and_coords:
+            if not grain.can_be_modified:
+                continue
+            neighbours = self.moore_neighbourhood(x, y)
+            decided_state = decide_by_4_rules(neighbours, probability)
+            grain.state = decided_state if decided_state is not None else grain.prev_state
+
+        # after all current states are set - update prev state
+        for grain in self.grains:
+            grain.prev_state = grain.state
+
+        return self
+
     def display(self, screen, resolution):
         rect = pygame.Rect(0, 0, resolution, resolution)
         for grain, x, y in self.grains_and_coords:
@@ -183,6 +206,13 @@ class GrainField:
     def set_grain_state(self, x, y, state):
         grain = self[x, y]  # type: Grain
         grain.state, grain.prev_state = state, grain.state
+
+    def set_grains(self, pixels, grain_type: GrainType, grain_state=0):
+        for x, y in pixels:
+            if self.width > x >= 0 and self.height > y >= 0:
+                grain = self[x, y]
+                grain.type = grain_type
+                grain.prev_state = grain_state
 
     def add_inclusion(self, location, size, type='square'):
         """
@@ -308,7 +338,7 @@ class GrainField:
         :param num_of_states: number of unique ids that will occur in the field
         """
         for grain in self.grains:
-            grain.state = random.randrange(1, num_of_states + 1)
+            grain.state = random.randrange(1, num_of_states)
 
     def print_field(self):
         result = '\n'
@@ -340,6 +370,8 @@ class GrainField:
         # x, y = item
         # return self.field[y * self.width + x]
         try:
+            if item[0] < 0 or item[1] < 0:  # get rid of negative indices
+                raise IndexError
             return self.field[item[0], item[1]]
         except IndexError:
             return Grain.OUT_OF_RANGE

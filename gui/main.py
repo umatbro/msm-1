@@ -85,7 +85,6 @@ class MainWindow(QtWidgets.QMainWindow):
         left_pane = QtWidgets.QWidget(central_wrapper)
         self.grain_field_widget = GrainFieldSetterWidget(left_pane)
         self.inclusion_widget = InclusionWidget(left_pane)
-        self.inclusion_widget.setEnabled(False)
         self.resolution_picker = ResolutionWidget(left_pane)
         # layout
         v_box = QtWidgets.QVBoxLayout(left_pane)
@@ -108,9 +107,31 @@ class MainWindow(QtWidgets.QMainWindow):
         left_pane.setLayout(v_box)
 
         # right pane
+        right_pane = QtWidgets.QWidget(central_wrapper)
+        self.probability = ProbabilityWidget(right_pane)
+        self.boundaries = BoundaryWidget(right_pane)
+        self.boundaries_button = QtWidgets.QPushButton('Add boundaries')
+        self.boundaries_button.clicked.connect(self.add_boundaries)
+        self.n_label = QtWidgets.QLabel('New number\nof nuclei')
+        self.new_num_of_nuclei_spinbox = QtWidgets.QSpinBox(right_pane)
+        self.new_num_of_nuclei_spinbox.setRange(0, 10000)
+        self.new_num_of_nuclei_spinbox.setSingleStep(10)
+        self.clear_button = QtWidgets.QPushButton('CA -> CA')
+        self.clear_button.clicked.connect(self.ca_visualisation)
+        self.dp_checkbox = QtWidgets.QCheckBox('Dual phase', right_pane)
+        v_box_r = QtWidgets.QVBoxLayout(right_pane)
+        v_box_r.addWidget(self.probability)
+        v_box_r.addWidget(self.boundaries)
+        v_box_r.addWidget(self.boundaries_button)
+        v_box_r.addWidget(separator(right_pane))
+        v_box_r.addWidget(self.n_label)
+        v_box_r.addWidget(self.new_num_of_nuclei_spinbox)
+        v_box_r.addWidget(self.dp_checkbox)
+        v_box_r.addWidget(self.clear_button)
 
         h_box = QtWidgets.QHBoxLayout(central_wrapper)
         h_box.addWidget(left_pane)
+        h_box.addWidget(right_pane)
         self.setCentralWidget(central_wrapper)
 
         # setup input fields
@@ -122,17 +143,21 @@ class MainWindow(QtWidgets.QMainWindow):
 
         :return: namedtuple with: width, height, nucleon_amount, resolution
         """
-        Values = namedtuple('FieldValues', ['width', 'height', 'nucleon_amount', 'resolution',
-                                            'inclusion_type', 'inclusion_amount', 'inclusion_size',
-                                            'max_iterations'])
+        Values = namedtuple('FieldValues', ['width', 'height', 'nucleon_amount', 'resolution', 'probability',
+                                            'inclusion_type', 'inclusion_amount', 'inclusion_size', 'dual_phase',
+                                            'new_amount_of_nuclei', 'boundaries', 'max_iterations'])
         return Values(
             width=self.grain_field_widget.x_input.value,
             height=self.grain_field_widget.y_input.value,
             nucleon_amount=self.grain_field_widget.nucleon_amount.value,
+            probability=self.probability.value,
             inclusion_type=self.inclusion_widget.inclusion_type.value,
             inclusion_amount=self.inclusion_widget.inclusion_amount.value,
             inclusion_size=self.inclusion_widget.inclusion_size.value,
             resolution=self.resolution_picker.resolution_input.value,
+            dual_phase=self.dp_checkbox.isChecked(),
+            new_amount_of_nuclei=self.new_num_of_nuclei_spinbox.value(),
+            boundaries=self.boundaries.value,
             max_iterations=self.grain_field_widget.max_iterations.value,
         )
 
@@ -205,33 +230,37 @@ class MainWindow(QtWidgets.QMainWindow):
                                      .format(100 * self.grain_field.grain_boundary_percentage))
 
     def run_visualisation(self):
+        self.centralWidget().setEnabled(False)
         sleep(0.5)
-        # try:
-        values = self.get_values()
-        self.hide()
-        if not self.grain_field:
-            self.grain_field = GrainField(values.width, values.height)
-            self.grain_field.fill_field_with_random_cells(values.nucleon_amount)
-        pool = ThreadPool(processes=1)
-        # if field is empty start analysis on random field, else continue analyzing current field
-        async_result = pool.apply_async(func=visualisation.run_field, kwds={
-            'grain_field': self.grain_field,
-            'resolution': values.resolution,
-            'paused': False,
-            'iterations_limit': values.max_iterations,
-        })
-        self.grain_field, self.selected_cells = async_result.get()
-        print(self.grain_field)
-        self.show()
-        self.update_layout()
-        self.update_status_bar()
-        # except ValueError as e:
-        #     dialog = QtWidgets.QDialog()
-        #     dialog.setWindowTitle('Error')
-        #     layout = QtWidgets.QVBoxLayout(dialog)
-        #     label = QtWidgets.QLabel(str(e))
-        #     layout.addWidget(label)
-        #     dialog.exec_()
+        try:
+            values = self.get_values()
+            self.hide()
+            pool = ThreadPool(processes=1)
+            # if field is empty start analysis on random field, else continue analyzing current field
+            async_result = pool.apply_async(func=visualisation.run, kwds={
+                'x_size': values.width,
+                'y_size': values.height,
+                'num_of_grains': values.nucleon_amount,
+                'probability': values.probability,
+                'resolution': values.resolution,
+                'num_of_inclusions': values.inclusion_amount,
+                'type_of_inclusions': values.inclusion_type,
+                'inclusions_size': values.inclusion_size,
+            }) if not self.grain_field else pool.apply_async(func=visualisation.run_field, args=(
+                self.grain_field, values.resolution, values.probability
+            ))
+            self.grain_field, self.selected_cells = async_result.get()
+            print(self.grain_field)
+            self.show()
+            self.update_layout()
+            self.update_status_bar()
+        except ValueError as e:
+            dialog = QtWidgets.QDialog()
+            dialog.setWindowTitle('Error')
+            layout = QtWidgets.QVBoxLayout(dialog)
+            label = QtWidgets.QLabel(str(e))
+            layout.addWidget(label)
+            dialog.exec_()
 
         self.centralWidget().setEnabled(True)
 
@@ -263,6 +292,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # grain field widget
         self.grain_field_widget.x_input.value = 100
         self.grain_field_widget.y_input.value = 100
+        self.probability.value = 50
         self.grain_field_widget.nucleon_amount.value = 10
         self.grain_field_widget.max_iterations.value = 10
 
