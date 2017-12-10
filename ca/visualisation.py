@@ -3,16 +3,19 @@ import pygame
 from ca.grain import Grain
 from ca.grain_field import random_field, GrainField
 from files import export_image, export_text, import_text
+from gui.components import CA_METHOD, MC_METHOD
 
 MAX_FRAMES = 60
 
 
-def run_field(grain_field: GrainField, resolution, probability=100,  paused=False):
+def run_field(grain_field: GrainField, resolution=1, simulation_method=CA_METHOD, probability=100, iterations_limit=10, paused=False):
     """
     Visualise grain field
 
     :param grain_field: field to be visualized
     :param resolution: length of square side (in pixels)
+    :param simulation_method: method used to simulate growth (can be either ca or mc)
+    :param probability: probability used in ca method
     :param paused: whether simulation starts paused or not
     :param iterations_limit: number of iterations after which visualisation will pause
     :return: grain field object after visualisation
@@ -48,7 +51,8 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                 # sys.exit(0)
             elif event.type is pygame.KEYDOWN:
                 if event.key is pygame.K_SPACE:
-                    grain_field.update_ca(probability)
+                    grain_field.update(simulation_method, probability)
+                    iterations += 1
                 elif event.key is pygame.K_r:
                     grain_field = random_field(grain_field.width, grain_field.height, 70)
                 elif event.key is pygame.K_i:
@@ -63,7 +67,7 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
                     grain_field.clear_field(dual_phase=True)
                 elif event.key is pygame.K_b:
                     points = []
-                    if not any([grain.lock_status is Grain.SELECTED for grain in grain_field]):
+                    if not any([grain.lock_status is Grain.SELECTED for grain in grain_field.grains]):
                         points = grain_field.grains_boundaries_points
                     else:
                         for state, cells in selected_cells.items():
@@ -97,16 +101,14 @@ def run_field(grain_field: GrainField, resolution, probability=100,  paused=Fals
         # display iterations
         label = iterations_num_font.render('{}'.format(iterations), 1, (0, 0, 0))
 
+        if iterations is iterations_limit:
+            paused = True if iterations is not 0 else False
+
         if not paused:
-            grain_field.update_ca(probability)
+            grain_field.update(simulation_method, probability)
             iterations += 1
-        # if not paused:
-        #     grain_field.update_mc()
-        #     iterations += 1
-        #
-        # # iterations
-        # if iterations is iterations_limit:
-        #     paused = True
+            if simulation_method == CA_METHOD and grain_field.full:
+                paused = True
 
         grain_field.display(screen, resolution)
         screen.blit(label, (window_width - 80, window_height - 80))
@@ -155,7 +157,7 @@ def mouse2grain_coords(mpos, resolution):
 
 if __name__ == '__main__':
     # run(300, 300, 3, 1, 100, 5, 'square')
-    mouse2grain_coords((10, 10),1)
     gf = GrainField(100, 100)
-    gf.fill_field_with_random_cells(10)
-    run_field(gf, 6, False)
+    # gf.fill_field_with_random_cells(10)
+    gf.random_grains(10)
+    run_field(gf, 6, )

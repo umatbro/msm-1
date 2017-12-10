@@ -73,6 +73,6 @@ def decide_by_4_rules(moore_neighbours: Neighbours, probability=50):
 
     # rule 4
     try:
-        return random.choice(states) if random.randint(0, 100) <= probability else None
+        return random.choice(states) if random.randint(0, 100) < probability else None
     except IndexError:
         return None

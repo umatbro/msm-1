@@ -1,5 +1,4 @@
 import random
-from collections import namedtuple
 
 import numpy as np
 
@@ -8,7 +7,8 @@ from ca.color import Color
 from geometry import pixels as px
 
 from ca.grain import Grain, GrainType
-from ca.neighbourhood import decide_state, decide_by_4_rules, Neighbours
+from ca.neighbourhood import decide_by_4_rules, Neighbours
+from gui.components import CA_METHOD, MC_METHOD
 
 
 class GrainField:
@@ -192,6 +192,13 @@ class GrainField:
 
         return self
 
+    def update(self, simulation_method=CA_METHOD, probability=100):
+        if simulation_method == CA_METHOD:
+            return self.update_ca(probability)
+        elif simulation_method == MC_METHOD:
+            return self.update_mc()
+        return self
+
     def display(self, screen, resolution):
         rect = pygame.Rect(0, 0, resolution, resolution)
         for grain, x, y in self.grains_and_coords:
@@ -338,7 +345,7 @@ class GrainField:
         :param num_of_states: number of unique ids that will occur in the field
         """
         for grain in self.grains:
-            grain.state = random.randrange(1, num_of_states)
+            grain.state = random.randint(1, num_of_states)
 
     def print_field(self):
         result = '\n'

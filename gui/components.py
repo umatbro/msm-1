@@ -7,6 +7,10 @@ from gui.utils import add_widgets_to_layout
 from enum import auto
 
 
+CA_METHOD = 'Cellular automata'
+MC_METHOD = 'Monte Carlo'
+
+
 class LabelLineEdit(QWidget):
     """
     Horizontal HBox with label and Line edit to the right
@@ -88,26 +92,21 @@ class GrainFieldSetterWidget(QWidget):
         # setup input fields
         self.text = QLabel('Default text')
         self.text.setAlignment(Qt.AlignHCenter)
+        self.simulation_type = LabelComboBox(self, 'Simulation', [CA_METHOD, MC_METHOD])
         self.x_input = LabelSpinBox(self, 'Width: ')
         self.y_input = LabelSpinBox(self, 'Height: ')
         self.nucleon_amount = LabelSpinBox(self, 'Nucleon amount: ', 10000)
         self.max_iterations = LabelSpinBox(self, 'Iterations', 10000, 0)
-        # self.probability = LabelSpinBox(self, 'Probability', 100, 1)
-        # self.probability = QSlider(Qt.Horizontal)
-        # self.probability.setMinimum(0)
-        # self.probability.setMaximum(100)
 
         self.x_input.spin_box.setSingleStep(100)
         self.y_input.spin_box.setSingleStep(100)
         self.max_iterations.spin_box.setSingleStep(5)
-        # self.probability.spin_box.setSuffix('%')
-        # self.probability.spin_box.setSingleStep(10)
 
         add_widgets_to_layout(v_box, [
             self.text,
+            self.simulation_type,
             self.x_input, self.y_input, self.nucleon_amount,
             self.max_iterations,
-            # self.probability
         ])
         self.setLayout(v_box)
 

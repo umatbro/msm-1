@@ -9,7 +9,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from ca.grain import Grain
 from ca.grain_field import GrainField
 from gui.components import InclusionWidget, GrainFieldSetterWidget, separator, ResolutionWidget, ProbabilityWidget, \
-    BoundaryWidget
+    BoundaryWidget, CA_METHOD, MC_METHOD
 from gui.utils import add_widgets_to_layout
 from files import export_text, export_image, import_text, import_img
 
@@ -20,8 +20,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle('MSM proj')
 
         # initial grain field
-        default_x, default_y = 100, 100
-        self.grain_field = grain_field.GrainField(default_x, default_y)
+        self.grain_field = grain_field.GrainField(100, 100)
         self.selected_cells = {}
 
         self.init_menubar()
@@ -145,7 +144,7 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         Values = namedtuple('FieldValues', ['width', 'height', 'nucleon_amount', 'resolution', 'probability',
                                             'inclusion_type', 'inclusion_amount', 'inclusion_size', 'dual_phase',
-                                            'new_amount_of_nuclei', 'boundaries', 'max_iterations'])
+                                            'new_amount_of_nuclei', 'boundaries', 'max_iterations', 'simulation_method'])
         return Values(
             width=self.grain_field_widget.x_input.value,
             height=self.grain_field_widget.y_input.value,
@@ -159,6 +158,7 @@ class MainWindow(QtWidgets.QMainWindow):
             new_amount_of_nuclei=self.new_num_of_nuclei_spinbox.value(),
             boundaries=self.boundaries.value,
             max_iterations=self.grain_field_widget.max_iterations.value,
+            simulation_method=self.grain_field_widget.simulation_type.value,
         )
 
     def import_field(self):
@@ -236,19 +236,23 @@ class MainWindow(QtWidgets.QMainWindow):
             values = self.get_values()
             self.hide()
             pool = ThreadPool(processes=1)
-            # if field is empty start analysis on random field, else continue analyzing current field
-            async_result = pool.apply_async(func=visualisation.run, kwds={
-                'x_size': values.width,
-                'y_size': values.height,
-                'num_of_grains': values.nucleon_amount,
-                'probability': values.probability,
+
+            if not self.grain_field:  # empty field - create new field
+                self.grain_field = GrainField(values.width, values.height)
+                if values.simulation_method == CA_METHOD:
+                    self.grain_field.random_grains(values.nucleon_amount)
+                    self.grain_field.random_inclusions(values.inclusion_amount, values.inclusion_size, values.inclusion_type)
+                elif values.simulation_method == MC_METHOD:
+                    self.grain_field.fill_field_with_random_cells(values.nucleon_amount)
+
+            async_result = pool.apply_async(func=visualisation.run_field, kwds={
+                'grain_field': self.grain_field,
                 'resolution': values.resolution,
-                'num_of_inclusions': values.inclusion_amount,
-                'type_of_inclusions': values.inclusion_type,
-                'inclusions_size': values.inclusion_size,
-            }) if not self.grain_field else pool.apply_async(func=visualisation.run_field, args=(
-                self.grain_field, values.resolution, values.probability
-            ))
+                'probability': values.probability,
+                'iterations_limit': values.max_iterations,
+                'simulation_method': values.simulation_method,
+            })
+
             self.grain_field, self.selected_cells = async_result.get()
             print(self.grain_field)
             self.show()
@@ -294,7 +298,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.grain_field_widget.y_input.value = 100
         self.probability.value = 50
         self.grain_field_widget.nucleon_amount.value = 10
-        self.grain_field_widget.max_iterations.value = 10
+        self.grain_field_widget.max_iterations.value = 0
 
         # inclusions
         self.inclusion_widget.inclusion_size.value = 1
