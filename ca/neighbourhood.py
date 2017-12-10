@@ -45,7 +45,8 @@ def decide_by_4_rules(moore_neighbours: Neighbours, probability=50):
     """
     # rule 1
     mn = moore_neighbours
-    states = [grain.prev_state for grain in mn if grain is not Grain.OUT_OF_RANGE and grain.can_influence_neighbours]
+    states = [grain.prev_state for grain in mn if grain is not Grain.OUT_OF_RANGE and grain.can_influence_neighbours
+              and grain.prev_state > 0]
     if states:
         counter = Counter(states)
         value, occurrences = max(counter.items(), key=operator.itemgetter(1))
