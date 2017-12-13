@@ -115,7 +115,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.new_num_of_nuclei_spinbox = QtWidgets.QSpinBox(right_pane)
         self.new_num_of_nuclei_spinbox.setRange(0, 10000)
         self.new_num_of_nuclei_spinbox.setSingleStep(10)
-        self.clear_button = QtWidgets.QPushButton('CA -> CA')
+        self.clear_button = QtWidgets.QPushButton('Clear and run')
         self.clear_button.clicked.connect(self.ca_visualisation)
         self.dp_checkbox = QtWidgets.QCheckBox('Dual phase', right_pane)
         v_box_r = QtWidgets.QVBoxLayout(right_pane)
@@ -239,9 +239,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if not self.grain_field:  # empty field - create new field
                 self.grain_field = GrainField(values.width, values.height)
+                self.grain_field.random_inclusions(values.inclusion_amount, values.inclusion_size,
+                                                   values.inclusion_type)
                 if values.simulation_method == CA_METHOD:
                     self.grain_field.random_grains(values.nucleon_amount)
-                    self.grain_field.random_inclusions(values.inclusion_amount, values.inclusion_size, values.inclusion_type)
                 elif values.simulation_method == MC_METHOD:
                     self.grain_field.fill_field_with_random_cells(values.nucleon_amount)
 
@@ -275,7 +276,10 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         values = self.get_values()
         self.grain_field.clear_field(dual_phase=values.dual_phase)
-        self.grain_field.random_grains(values.new_amount_of_nuclei)
+        if values.simulation_method == CA_METHOD:
+            self.grain_field.random_grains(values.new_amount_of_nuclei)
+        elif values.simulation_method == MC_METHOD:
+            self.grain_field.fill_field_with_random_cells(values.new_amount_of_nuclei)
         self.run_visualisation()
 
     def update_layout(self):

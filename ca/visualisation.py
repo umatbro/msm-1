@@ -82,14 +82,17 @@ def run_field(grain_field: GrainField, resolution=1, simulation_method=CA_METHOD
                 # clicking on grains selects them
                 gx, gy = mouse2grain_coords(pygame.mouse.get_pos(), resolution)
                 grain = grain_field[gx, gy]
-                state = grain.prev_state
+                if simulation_method == CA_METHOD:
+                    state = grain.prev_state
+                elif simulation_method == MC_METHOD:
+                    state = grain.state
 
                 if grain.lock_status is Grain.SELECTED:
                     # unlock it then
                     for cell in selected_cells[state]:
                         cell.lock_status = Grain.ALIVE
                     del selected_cells[state]
-                elif state is not Grain.INCLUSION:
+                elif state is not Grain.INCLUSION and not grain.is_locked:
                     selected_cells[state] = grain_field.cells_of_state(state)
                     for cell in selected_cells[state]:  # type: Grain
                         cell.lock_status = Grain.SELECTED

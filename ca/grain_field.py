@@ -149,8 +149,11 @@ class GrainField:
         """
         np.random.shuffle(self.coords_list)
         for x, y in self.coords_list:
+            if self[x, y].is_locked:
+                continue
             neighbours = self.moore_neighbourhood(x, y)
-            if all([n.state is self[x, y].state for n in neighbours if n is not Grain.OUT_OF_RANGE]):
+            neighbours = [n for n in neighbours if n is not Grain.OUT_OF_RANGE and not n.is_locked]
+            if all([n.state is self[x, y].state for n in neighbours]):
                 continue  # all neighbours are same state as considered cells - there will be no change
             energy_before = self.boundary_energy(x, y)
             while True:
@@ -254,7 +257,7 @@ class GrainField:
         :param state: state to be searched
         :return: list with references to cells of given state
         """
-        return [grain for grain in self.grains if grain.prev_state == state]
+        return [grain for grain in self.grains if grain.state == state]
 
     def cells_and_coords_of_state(self, state):
         return [(grain, x, y) for grain, x, y in self.grains_and_coords if grain.prev_state == state]
@@ -292,6 +295,8 @@ class GrainField:
         for grain in self.grains:
             if grain.lock_status is Grain.SELECTED:
                 grain.lock_status = Grain.LOCKED if not dual_phase else Grain.DUAL_PHASE
+                # if dual_phase:
+                #     grain.state = Grain.DUAL_PHASE
 
         return self
 
@@ -344,8 +349,13 @@ class GrainField:
 
         :param num_of_states: number of unique ids that will occur in the field
         """
+        if num_of_states is 0:
+            return self
         for grain in self.grains:
-            grain.state = random.randint(1, num_of_states)
+            if not grain.is_locked:
+                grain.state = random.randint(1, num_of_states)
+
+        return self
 
     def print_field(self):
         result = '\n'
@@ -374,8 +384,6 @@ class GrainField:
         return any([grain for grain in self.grains])
 
     def __getitem__(self, item):
-        # x, y = item
-        # return self.field[y * self.width + x]
         try:
             if item[0] < 0 or item[1] < 0:  # get rid of negative indices
                 raise IndexError
@@ -384,7 +392,6 @@ class GrainField:
             return Grain.OUT_OF_RANGE
 
     def __setitem__(self, key, value):
-        x, y = key
         self[key] = value
 
     def __iter__(self):
