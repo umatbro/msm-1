@@ -87,6 +87,10 @@ class Grain:
     def has_unq_state(self):
         return self.prev_state > Grain.EMPTY
 
+    @property
+    def is_locked(self):
+        return self.lock_status < Grain.ALIVE
+
     def toggle_selected(self):
         self.lock_status = Grain.SELECTED if self.lock_status is Grain.ALIVE else Grain.ALIVE
 

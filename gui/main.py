@@ -275,7 +275,10 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         values = self.get_values()
         self.grain_field.clear_field(dual_phase=values.dual_phase)
-        self.grain_field.random_grains(values.new_amount_of_nuclei)
+        if values.simulation_method == CA_METHOD:
+            self.grain_field.random_grains(values.new_amount_of_nuclei)
+        elif values.simulation_method == MC_METHOD:
+            self.grain_field.fill_field_with_random_cells(values.new_amount_of_nuclei)
         self.run_visualisation()
 
     def update_layout(self):

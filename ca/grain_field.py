@@ -149,8 +149,10 @@ class GrainField:
         """
         np.random.shuffle(self.coords_list)
         for x, y in self.coords_list:
+            if self[x, y].is_locked:
+                continue
             neighbours = self.moore_neighbourhood(x, y)
-            if all([n.state is self[x, y].state for n in neighbours if n is not Grain.OUT_OF_RANGE]):
+            if all([n.state is self[x, y].state for n in neighbours if n is not Grain.OUT_OF_RANGE and not n.is_locked]):
                 continue  # all neighbours are same state as considered cells - there will be no change
             energy_before = self.boundary_energy(x, y)
             while True:
@@ -254,7 +256,7 @@ class GrainField:
         :param state: state to be searched
         :return: list with references to cells of given state
         """
-        return [grain for grain in self.grains if grain.prev_state == state]
+        return [grain for grain in self.grains if grain.state == state]
 
     def cells_and_coords_of_state(self, state):
         return [(grain, x, y) for grain, x, y in self.grains_and_coords if grain.prev_state == state]
@@ -345,7 +347,8 @@ class GrainField:
         :param num_of_states: number of unique ids that will occur in the field
         """
         for grain in self.grains:
-            grain.state = random.randint(1, num_of_states)
+            if not grain.is_locked:
+                grain.state = random.randint(1, num_of_states)
 
     def print_field(self):
         result = '\n'
