@@ -21,6 +21,7 @@ class Color:
     WHITE = (255, 255, 255)
     GREY = (125, 124, 125)
     LIGHTPINK = (255, 182, 193)
+    LIGHTGREEN500 = hex2rgb('#8BC34A')
 
     default_colors = [
         RED,
@@ -75,3 +76,8 @@ class Color:
             return calc_state(r)
         if g and not r and not b:
             return calc_state(r)
+
+
+def hex2rgb(hex_code: str) -> tuple:
+    h = hex_code.lstrip('#')
+    return tuple(int(h[i: i+2], 16) for i in (0, 2, 4))

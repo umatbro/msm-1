@@ -41,7 +41,6 @@ class Grain:
         self.__lock_status = value
 
     def __init__(self, state=None):
-        # self.color = None
         self.__lock_status = None
         self.__state = None
 
@@ -50,6 +49,7 @@ class Grain:
         self.lock_status = Grain.ALIVE
         self.prev_state = state
         self.state = state
+        self.energy_value = 0
 
     @property
     def color(self):
@@ -60,6 +60,10 @@ class Grain:
         if self.lock_status is Grain.DUAL_PHASE or self.state is Grain.DUAL_PHASE:
             return Color.GREY
         return Color.state_color(self.state)
+
+    @property
+    def energy_color(self):
+        pass
 
     @property
     def can_be_modified(self) -> bool:
