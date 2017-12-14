@@ -107,15 +107,15 @@ def run_field(grain_field: GrainField, resolution=1, simulation_method=CA_METHOD
         if iterations is iterations_limit:
             paused = True if iterations is not 0 else False
 
+        grain_field.display(screen, resolution)
+        screen.blit(label, (window_width - 80, window_height - 80))
+        pygame.display.update()
+
         if not paused:
             grain_field.update(simulation_method, probability)
             iterations += 1
             if simulation_method == CA_METHOD and grain_field.full:
                 paused = True
-
-        grain_field.display(screen, resolution)
-        screen.blit(label, (window_width - 80, window_height - 80))
-        pygame.display.update()
 
 
 def run(
