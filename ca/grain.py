@@ -1,5 +1,6 @@
 from enum import Enum
 from ca.color import Color
+from um.visuals import color
 
 
 class GrainType(Enum):
@@ -63,7 +64,13 @@ class Grain:
 
     @property
     def energy_color(self):
-        pass
+        if self.energy_value == 5:
+            return color.BLUE500
+        if self.energy_value == 2:
+            return color.LIGHT_GREEN300
+        if self.energy_value == 0:
+            return color.WHITE
+        raise Exception('Cell energy value ({}) not expected'.format(self.energy_value))
 
     @property
     def can_be_modified(self) -> bool:

@@ -21,7 +21,6 @@ class Color:
     WHITE = (255, 255, 255)
     GREY = (125, 124, 125)
     LIGHTPINK = (255, 182, 193)
-    LIGHTGREEN500 = hex2rgb('#8BC34A')
 
     default_colors = [
         RED,

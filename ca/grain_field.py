@@ -1,4 +1,5 @@
 import random
+from enum import Enum, auto
 
 import numpy as np
 
@@ -9,6 +10,11 @@ from geometry import pixels as px
 from ca.grain import Grain, GrainType
 from ca.neighbourhood import decide_by_4_rules, Neighbours
 from gui.components import CA_METHOD, MC_METHOD
+
+
+class FieldVisualisationType(Enum):
+    NUCLEATION = auto()
+    ENERGY_DISTRIBUTION = auto()
 
 
 class GrainField:
@@ -202,11 +208,15 @@ class GrainField:
             return self.update_mc()
         return self
 
-    def display(self, screen, resolution):
+    def display(self, screen, resolution, visualisation_type=FieldVisualisationType.NUCLEATION):
         rect = pygame.Rect(0, 0, resolution, resolution)
         for grain, x, y in self.grains_and_coords:
             rect.x = x * resolution
-            color = grain.color
+            color = None
+            if visualisation_type is FieldVisualisationType.NUCLEATION:
+                color = grain.color
+            elif visualisation_type is FieldVisualisationType.ENERGY_DISTRIBUTION:
+                color = grain.energy_color
             rect.y = y * resolution
             pygame.draw.rect(screen, color, rect)
             # if resolution is less than 5 don't draw borders

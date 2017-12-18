@@ -1,14 +1,22 @@
+import itertools
 import pygame
 
 from ca.grain import Grain
-from ca.grain_field import random_field, GrainField
+from ca.grain_field import random_field, GrainField, FieldVisualisationType
 from files import export_image, export_text, import_text
 from gui.components import CA_METHOD, MC_METHOD
 
 MAX_FRAMES = 60
 
 
-def run_field(grain_field: GrainField, resolution=1, simulation_method=CA_METHOD, probability=100, iterations_limit=10, paused=False):
+def run_field(
+        grain_field: GrainField,
+        resolution: int=1,
+        simulation_method=CA_METHOD,
+        probability: int=100,
+        iterations_limit: int=10,
+        paused=False,
+):
     """
     Visualise grain field
 
@@ -38,6 +46,9 @@ def run_field(grain_field: GrainField, resolution=1, simulation_method=CA_METHOD
     iterations = 0
     iterations_num_font = pygame.font.SysFont('monospace', 48 if resolution >= 6 else 24, bold=True)
 
+    visualisation_type = FieldVisualisationType.NUCLEATION
+    visualisation_type_toggler = itertools.cycle(FieldVisualisationType.__members__.values())
+
     # main loop
     while 1337:
         for event in pygame.event.get():
@@ -53,6 +64,8 @@ def run_field(grain_field: GrainField, resolution=1, simulation_method=CA_METHOD
                 if event.key is pygame.K_SPACE:
                     grain_field.update(simulation_method, probability)
                     iterations += 1
+                elif event.key is pygame.K_TAB:
+                    visualisation_type = next(visualisation_type_toggler)
                 elif event.key is pygame.K_r:
                     grain_field = random_field(grain_field.width, grain_field.height, 70)
                 elif event.key is pygame.K_i:
@@ -107,7 +120,7 @@ def run_field(grain_field: GrainField, resolution=1, simulation_method=CA_METHOD
         if iterations is iterations_limit:
             paused = True if iterations is not 0 else False
 
-        grain_field.display(screen, resolution)
+        grain_field.display(screen, resolution, visualisation_type)
         screen.blit(label, (window_width - 80, window_height - 80))
         pygame.display.update()
 
