@@ -17,6 +17,11 @@ class FieldVisualisationType(Enum):
     ENERGY_DISTRIBUTION = auto()
 
 
+class EnergyDistribution(Enum):
+    HOMOGENOUS = 'homogenous'
+    HETEROGENOUS = 'heterogenous'
+
+
 class GrainField:
     def __init__(self, x_size, y_size):
         if type(x_size) or type(y_size) is float:
@@ -309,6 +314,21 @@ class GrainField:
                 #     grain.state = Grain.DUAL_PHASE
 
         return self
+
+    def distribute_energy(self, energy_distribution: EnergyDistribution=EnergyDistribution.HETEROGENOUS):
+        """
+        Distribute energy
+
+        :param energy_distribution: type of energy distribution.
+        """
+        if energy_distribution is EnergyDistribution.HOMOGENOUS:
+            for grain in self.grains:
+                grain.energy_value = 5
+        elif energy_distribution is EnergyDistribution.HETEROGENOUS:
+            for grain in self.grains:
+                grain.energy_value = 2
+            for x, y in self.grains_boundaries_points:
+                self[x, y].energy_value = 5
 
     def random_inclusions(self, num_of_inclusions, inclusion_size=1, inclusion_type='square'):
         """

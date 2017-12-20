@@ -66,8 +66,8 @@ def run_field(
                     iterations += 1
                 elif event.key is pygame.K_TAB:
                     visualisation_type = next(visualisation_type_toggler)
-                elif event.key is pygame.K_r:
-                    grain_field = random_field(grain_field.width, grain_field.height, 70)
+                elif event.key is pygame.K_e:
+                    grain_field.distribute_energy()
                 elif event.key is pygame.K_i:
                     export_image(grain_field)
                 elif event.key is pygame.K_t:
@@ -173,7 +173,7 @@ def mouse2grain_coords(mpos, resolution):
 
 if __name__ == '__main__':
     # run(300, 300, 3, 1, 100, 5, 'square')
-    gf = GrainField(100, 100)
+    gf = GrainField(70, 70)
     # gf.fill_field_with_random_cells(10)
     gf.random_grains(10)
     run_field(gf, 6, )

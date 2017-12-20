@@ -64,9 +64,9 @@ class Grain:
 
     @property
     def energy_color(self):
-        if self.energy_value == 5:
-            return color.BLUE500
         if self.energy_value == 2:
+            return color.BLUE500
+        if self.energy_value == 5:
             return color.LIGHT_GREEN300
         if self.energy_value == 0:
             return color.WHITE
