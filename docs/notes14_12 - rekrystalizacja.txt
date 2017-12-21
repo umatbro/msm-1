@@ -1,0 +1,34 @@
+różnica między rekrystalizacją statyczną i dynamiczną
+
+
+nowe zarodki ziaren
+
+
+w sztuczny sposob odwzorować ilość energii 
+
+Implementacja
+----------------
+
+2 parts: 
+* generate initial microstructure
+* simulation of static recrystalisation
+
+* static recr. based on energy - energy will be used as major driving force
+
+we can assume that each cell has the same value of energy
+add property H, in this case all H are 5
+
+2nd case: cells on boundaries have bigger energy than the rest
+
+(we have to generate energy distribution in field)
+
+
+After we distribute energy 
+we add new grains, we change its state and energy H to 0.
+After this we start growth. 
+Simmilar to MC we select all cells randomly
+we count energy if any neighbour is recrystalized
+we count energy just like in MC
+Energy before - we add H
+energy after - we dont add H
+If the change is accepted we reduce H to 0
