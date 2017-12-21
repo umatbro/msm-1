@@ -9,7 +9,10 @@ from geometry import pixels as px
 
 from ca.grain import Grain, GrainType
 from ca.neighbourhood import decide_by_4_rules, Neighbours
-from gui.components import CA_METHOD, MC_METHOD
+
+
+CA_METHOD = 'Cellular automata'
+MC_METHOD = 'Monte Carlo'
 
 
 class FieldVisualisationType(Enum):
@@ -20,6 +23,10 @@ class FieldVisualisationType(Enum):
 class EnergyDistribution(Enum):
     HOMOGENOUS = 'homogenous'
     HETEROGENOUS = 'heterogenous'
+
+
+class FieldNotFilledException(Exception):
+    pass
 
 
 class GrainField:
@@ -321,6 +328,8 @@ class GrainField:
 
         :param energy_distribution: type of energy distribution.
         """
+        if not self.full:
+            raise FieldNotFilledException('Could not distribute energy. Field is not fully filled.')
         if energy_distribution is EnergyDistribution.HOMOGENOUS:
             for grain in self.grains:
                 grain.energy_value = 5

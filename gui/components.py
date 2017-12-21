@@ -5,10 +5,7 @@ from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QIntValidator
 from gui.utils import add_widgets_to_layout
 from enum import auto
-
-
-CA_METHOD = 'Cellular automata'
-MC_METHOD = 'Monte Carlo'
+from ca.grain_field import CA_METHOD, MC_METHOD, EnergyDistribution
 
 
 class LabelLineEdit(QWidget):
@@ -53,6 +50,27 @@ class LabelComboBox(QWidget):
         h_box = QHBoxLayout(self)
         h_box.addWidget(self.label, 1)
         h_box.addWidget(self.combo_box, 4)
+        self.setLayout(h_box)
+
+    @property
+    def value(self):
+        return self.combo_box.currentText()
+
+
+class ComboBoxButton(QWidget):
+    def __init__(self, button_caption='', options=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if options is None:
+            options = []
+        self.combo_box = QComboBox(self)
+        self.button = QPushButton(self)
+
+        self.button.setText(button_caption)
+        self.combo_box.addItems(options)
+
+        h_box = QHBoxLayout(self)
+        h_box.addWidget(self.combo_box)
+        h_box.addWidget(self.button)
         self.setLayout(h_box)
 
     @property
@@ -198,6 +216,21 @@ class BoundaryWidget(QWidget):
             return BoundaryWidget.SELECTED
         else:
             return None
+
+
+class EnergyWidget(QWidget):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.label = QLabel('Energy distribution')
+        self.energy_distribution = ComboBoxButton('Distribute energy', [
+            distribution_type.value for distribution_type in EnergyDistribution.__members__.values()
+        ], self)
+
+        # layout
+        v_box = QtWidgets.QVBoxLayout(self)
+        v_box.addWidget(self.label)
+        v_box.addWidget(self.energy_distribution)
+        self.setLayout(v_box)
 
 
 def separator(parent):

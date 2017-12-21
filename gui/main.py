@@ -7,9 +7,9 @@ from ca import visualisation, grain_field
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from ca.grain import Grain
-from ca.grain_field import GrainField
+from ca.grain_field import GrainField, EnergyDistribution, FieldNotFilledException
 from gui.components import InclusionWidget, GrainFieldSetterWidget, separator, ResolutionWidget, ProbabilityWidget, \
-    BoundaryWidget, CA_METHOD, MC_METHOD
+    BoundaryWidget, CA_METHOD, MC_METHOD, EnergyWidget
 from gui.utils import add_widgets_to_layout
 from files import export_text, export_image, import_text, import_img
 
@@ -28,7 +28,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.init_center()
 
         self.setFixedSize(self.sizeHint())
-        self.setFixedWidth(400)
+        # self.setFixedWidth(400)
 
         self.update_layout()
 
@@ -130,8 +130,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # right pane
         right_pane = QtWidgets.QWidget(central_wrapper)
-        self.add_energy_button = None
+        self.energy_widget = EnergyWidget(central_wrapper)
+        self.energy_widget.energy_distribution.button.clicked.connect(self.distribute_energy_action)
         v_box_r = QtWidgets.QVBoxLayout(right_pane)
+        v_box_r.addWidget(self.energy_widget)
+        v_box_r.addStretch()  # so all items are aligned top
 
         h_box = QtWidgets.QHBoxLayout(central_wrapper)
         h_box.addWidget(left_pane)
@@ -235,6 +238,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.statusBar().showMessage('Added boundary points. ({}% of total)'
                                      .format(100 * self.grain_field.grain_boundary_percentage))
 
+    def distribute_energy_action(self):
+        """
+        Distribute energy in current filed. Take selected energy type into consideration
+        """
+        selected_distribution = self.energy_widget.energy_distribution.combo_box.currentText()
+        # distribute energy
+        try:
+            self.grain_field.distribute_energy(
+                EnergyDistribution(selected_distribution)
+            )
+        except FieldNotFilledException as e:
+            message = str(e)
+        else:
+            message = 'Energy distribution (type: {})'.format(selected_distribution)
+        # notify on statusbar
+        self.statusBar().showMessage(message)
+
     def run_visualisation(self):
         self.centralWidget().setEnabled(False)
         sleep(0.5)
@@ -315,6 +335,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # resolution
         self.resolution_picker.resolution_input.value = 6
+
+        self.dp_checkbox.setChecked(True)
 
 
 if __name__ == '__main__':
