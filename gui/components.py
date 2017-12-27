@@ -225,11 +225,17 @@ class EnergyWidget(QWidget):
         self.energy_distribution = ComboBoxButton('Distribute energy', [
             distribution_type.value for distribution_type in EnergyDistribution.__members__.values()
         ], self)
+        self.energy_inside = LabelSpinBox(self, 'Energy inside', 15)
+        self.energy_on_edges = LabelSpinBox(self, 'Energy on edges', 15)
+        self.nucleons_on_start = LabelSpinBox(self, 'Nucleons on start', 100)
 
         # layout
         v_box = QtWidgets.QVBoxLayout(self)
         v_box.addWidget(self.label)
         v_box.addWidget(self.energy_distribution)
+        v_box.addWidget(self.energy_inside)
+        v_box.addWidget(self.energy_on_edges)
+        v_box.addWidget(self.nucleons_on_start)
         self.setLayout(v_box)
 
 

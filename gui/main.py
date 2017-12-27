@@ -153,7 +153,8 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         Values = namedtuple('FieldValues', ['width', 'height', 'nucleon_amount', 'resolution', 'probability',
                                             'inclusion_type', 'inclusion_amount', 'inclusion_size', 'dual_phase',
-                                            'new_amount_of_nuclei', 'boundaries', 'max_iterations', 'simulation_method'])
+                                            'new_amount_of_nuclei', 'boundaries', 'max_iterations', 'simulation_method',
+                                            'energy_inside', 'energy_on_edges', 'nucleons_on_start'])
         return Values(
             width=self.grain_field_widget.x_input.value,
             height=self.grain_field_widget.y_input.value,
@@ -168,6 +169,9 @@ class MainWindow(QtWidgets.QMainWindow):
             boundaries=self.boundaries.value,
             max_iterations=self.grain_field_widget.max_iterations.value,
             simulation_method=self.grain_field_widget.simulation_type.value,
+            energy_inside=self.energy_widget.energy_inside.value,
+            energy_on_edges=self.energy_widget.energy_on_edges.value,
+            nucleons_on_start=self.energy_widget.nucleons_on_start.value,
         )
 
     def import_field(self):
@@ -337,6 +341,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resolution_picker.resolution_input.value = 6
 
         self.dp_checkbox.setChecked(True)
+
+        # energy distribution
+        self.energy_widget.energy_inside.value = 2
+        self.energy_widget.energy_on_edges.value = 5
+        self.energy_widget.nucleons_on_start.value = 10
 
 
 if __name__ == '__main__':
