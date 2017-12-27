@@ -10,9 +10,10 @@ from geometry import pixels as px
 from ca.grain import Grain, GrainType
 from ca.neighbourhood import decide_by_4_rules, Neighbours
 
-
 CA_METHOD = 'Cellular automata'
 MC_METHOD = 'Monte Carlo'
+
+SXRMC = auto()
 
 
 class FieldVisualisationType(Enum):
@@ -140,7 +141,7 @@ class GrainField:
             self[x - 1, y + 1],  # bottom-left
         )
 
-    def boundary_energy(self, x, y, state=None):
+    def boundary_energy(self, x, y, state: int=None, add_energy: bool=False):
         """
         Calculate boundary energy
 
@@ -148,6 +149,7 @@ class GrainField:
         :param y: coord
         :param state: state of current cell, can be set to a future cell state (if
         not provided it will be fetched automatically)
+        :param add_energy: parameter used during sxrmc simulation. If it's true energy value will be added to the result
         """
         if state is None:
             state = self[x, y].state
@@ -157,7 +159,7 @@ class GrainField:
                 result += 1 if neighbour.state is not state else 0
             except AttributeError:  # is risen when neighbour is Grain.OUT_OF_RANGE
                 pass
-        return result
+        return result if not add_energy else result + self[x, y].energy_value
 
     def update_mc(self):
         """
@@ -213,6 +215,33 @@ class GrainField:
 
         return self
 
+    def update_sxrmc(self, iteration=0):
+        """
+        Update field in terms of SXRMC.
+
+        :param iteration:
+        :return:
+        """
+        np.random.shuffle(self.coords_list)
+        for x, y in self.coords_list:
+            grain = self[x, y]  # type: Grain
+            if grain.lock_status is Grain.RECRYSTALIZED or grain.is_locked:
+                continue
+            neighbours = self.moore_neighbourhood(x, y)
+            if not any([grain.lock_status is Grain.RECRYSTALIZED for grain in neighbours if grain is not Grain.OUT_OF_RANGE]):
+                continue  # if there are no recrystalized grains in neighbourhood - just continue
+            # calculate energy before
+            energy_before = self.boundary_energy(x, y, add_energy=True)
+            energy_after = self.boundary_energy(x, y, add_energy=False)
+
+            if energy_after > energy_before:
+                # update state to the same as chosen one
+                chosen_grain = random.choice([neighbour for neighbour in neighbours
+                                             if neighbour.lock_status is Grain.RECRYSTALIZED])
+                grain.state = chosen_grain.state
+                grain.lock_status = Grain.RECRYSTALIZED
+        return self
+
     def update(self, simulation_method=CA_METHOD, probability=100):
         if simulation_method == CA_METHOD:
             return self.update_ca(probability)
@@ -245,6 +274,22 @@ class GrainField:
                 grain = self[x, y]
                 grain.type = grain_type
                 grain.prev_state = grain_state
+
+    def add_new_grains(self, num_of_new_grains, on_boundaries=True):
+        """
+        Add new grains with energy_value = 0
+
+        :param num_of_new_grains:
+        :param on_boundaries: determine whether new grains will lay on grain boundaries
+        :return:
+        :raises ValueError: when sample size (new number of grains) is larger than number of boundary points
+        """
+        # choose random coords to add new grains
+        for x, y in (random.sample(self.grains_boundaries_points, num_of_new_grains) if on_boundaries
+        else random.sample(list(map(lambda item: (item[1], item[2]), self.grains_and_coords)), num_of_new_grains)):
+            grain = self[x, y]
+            grain.energy_value = 0
+            grain.lock_status = Grain.RECRYSTALIZED
 
     def add_inclusion(self, location, size, type='square'):
         """
@@ -322,7 +367,7 @@ class GrainField:
 
         return self
 
-    def distribute_energy(self, energy_distribution: EnergyDistribution=EnergyDistribution.HETEROGENOUS):
+    def distribute_energy(self, energy_distribution: EnergyDistribution = EnergyDistribution.HETEROGENOUS):
         """
         Distribute energy
 

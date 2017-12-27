@@ -1,6 +1,7 @@
-from enum import Enum
+from enum import Enum, auto
 from ca.color import Color
 from um.visuals import color
+from um import utils
 
 
 class GrainType(Enum):
@@ -18,6 +19,8 @@ class Grain:
     LOCKED = -4
     DUAL_PHASE = -5
     SELECTED = -6
+
+    RECRYSTALIZED = auto()
 
     @property
     def state(self):
@@ -40,6 +43,8 @@ class Grain:
     @lock_status.setter
     def lock_status(self, value):
         self.__lock_status = value
+        if value is Grain.RECRYSTALIZED:
+            self.energy_value = 0
 
     def __init__(self, state=None):
         self.__lock_status = None
@@ -50,7 +55,7 @@ class Grain:
         self.lock_status = Grain.ALIVE
         self.prev_state = state
         self.state = state
-        self.energy_value = 0
+        self.energy_value = 1
 
     @property
     def color(self):
@@ -60,6 +65,8 @@ class Grain:
             return Color.LIGHTPINK
         if self.lock_status is Grain.DUAL_PHASE or self.state is Grain.DUAL_PHASE:
             return Color.GREY
+        if self.lock_status is Grain.RECRYSTALIZED:
+            return self.recrystalized_color
         return Color.state_color(self.state)
 
     @property
@@ -68,9 +75,18 @@ class Grain:
             return color.BLUE500
         if self.energy_value == 5:
             return color.LIGHT_GREEN300
-        if self.energy_value == 0:
+        if self.energy_value == 1:
             return color.WHITE
+        if self.lock_status is Grain.RECRYSTALIZED:
+            return self.recrystalized_color
         raise Exception('Cell energy value ({}) not expected'.format(self.energy_value))
+
+    @property
+    def recrystalized_color(self):
+        """
+        :return: color for recrystalized grain (shades of black and white).
+        """
+        return tuple([utils.constrain(7 * self.state, 255) for i in range(3)])
 
     @property
     def can_be_modified(self) -> bool:
