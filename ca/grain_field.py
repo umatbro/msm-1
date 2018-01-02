@@ -22,8 +22,11 @@ class FieldVisualisationType(Enum):
 
 
 class EnergyDistribution(Enum):
-    HOMOGENOUS = 'homogenous'
     HETEROGENOUS = 'heterogenous'
+    HOMOGENOUS = 'homogenous'
+
+    def __str__(self):
+        return str(self.value)
 
 
 class FieldNotFilledException(Exception):
@@ -234,10 +237,10 @@ class GrainField:
             energy_before = self.boundary_energy(x, y, add_energy=True)
             energy_after = self.boundary_energy(x, y, add_energy=False)
 
-            if energy_after > energy_before:
+            if energy_after <= energy_before:
                 # update state to the same as chosen one
-                chosen_grain = random.choice([neighbour for neighbour in neighbours
-                                             if neighbour.lock_status is Grain.RECRYSTALIZED])
+                chosen_grain = random.choice([neighbour for neighbour in neighbours if neighbour is not Grain.OUT_OF_RANGE
+                                             and neighbour.lock_status is Grain.RECRYSTALIZED])
                 grain.state = chosen_grain.state
                 grain.lock_status = Grain.RECRYSTALIZED
         return self
@@ -247,6 +250,8 @@ class GrainField:
             return self.update_ca(probability)
         elif simulation_method == MC_METHOD:
             return self.update_mc()
+        elif simulation_method == SXRMC:
+            return self.update_sxrmc()
         return self
 
     def display(self, screen, resolution, visualisation_type=FieldVisualisationType.NUCLEATION):
@@ -367,7 +372,7 @@ class GrainField:
 
         return self
 
-    def distribute_energy(self, energy_distribution: EnergyDistribution = EnergyDistribution.HETEROGENOUS):
+    def distribute_energy(self, energy_distribution: EnergyDistribution=EnergyDistribution.HETEROGENOUS, energy_inside=2, energy_on_edges=5):
         """
         Distribute energy
 
@@ -377,12 +382,12 @@ class GrainField:
             raise FieldNotFilledException('Could not distribute energy. Field is not fully filled.')
         if energy_distribution is EnergyDistribution.HOMOGENOUS:
             for grain in self.grains:
-                grain.energy_value = 5
+                grain.energy_value = energy_inside
         elif energy_distribution is EnergyDistribution.HETEROGENOUS:
             for grain in self.grains:
-                grain.energy_value = 2
+                grain.energy_value = energy_inside
             for x, y in self.grains_boundaries_points:
-                self[x, y].energy_value = 5
+                self[x, y].energy_value = energy_on_edges
 
     def random_inclusions(self, num_of_inclusions, inclusion_size=1, inclusion_type='square'):
         """

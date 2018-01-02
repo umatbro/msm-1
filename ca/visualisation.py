@@ -172,8 +172,10 @@ def mouse2grain_coords(mpos, resolution):
 
 
 if __name__ == '__main__':
-    # run(300, 300, 3, 1, 100, 5, 'square')
-    gf = GrainField(70, 70)
-    # gf.fill_field_with_random_cells(10)
-    gf.random_grains(10)
-    run_field(gf, 6, )
+    import os
+    from files import import_text
+    from ca.grain_field import SXRMC
+    field = import_text(os.path.join(os.getcwd(), 'example_fields', 'example1.txt'))
+    field.distribute_energy()
+    field.add_new_grains(10)
+    run_field(field, resolution=6, simulation_method=SXRMC, paused=True)
