@@ -68,6 +68,7 @@ def import_text(source: str) -> GrainField:
                 state = 0 if state == 'None' else int(state)
                 if state is not Grain.INCLUSION:
                     grain_field.set_grain_state(x, y, state)
+                    grain_field[x, y].prev_state = state
                 else:
                     grain_field.add_inclusion((x, y), 1, type='square')
             except ValueError:
