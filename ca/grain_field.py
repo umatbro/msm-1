@@ -256,13 +256,16 @@ class GrainField:
 
     def display(self, screen, resolution, visualisation_type=FieldVisualisationType.NUCLEATION):
         rect = pygame.Rect(0, 0, resolution, resolution)
+        max_energy = max([grain.energy_value for grain in self.grains])
+        min_energy = min([grain.energy_value for grain in self.grains if grain.energy_value > 0])
         for grain, x, y in self.grains_and_coords:
             rect.x = x * resolution
             color = None
             if visualisation_type is FieldVisualisationType.NUCLEATION:
                 color = grain.color
             elif visualisation_type is FieldVisualisationType.ENERGY_DISTRIBUTION:
-                color = grain.energy_color
+                # color = grain.energy_color
+                color = grain.nrg_color(min_energy, max_energy)
             rect.y = y * resolution
             pygame.draw.rect(screen, color, rect)
             # if resolution is less than 5 don't draw borders

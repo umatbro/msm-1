@@ -246,11 +246,14 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         Distribute energy in current filed. Take selected energy type into consideration
         """
+        values = self.get_values()
         selected_distribution = self.energy_widget.energy_distribution.combo_box.currentText()
         # distribute energy
         try:
             self.grain_field.distribute_energy(
-                EnergyDistribution(selected_distribution)
+                EnergyDistribution(selected_distribution),
+                energy_inside=values.energy_inside,
+                energy_on_edges=values.energy_on_edges
             )
         except FieldNotFilledException as e:
             message = str(e)

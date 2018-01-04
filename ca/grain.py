@@ -81,6 +81,17 @@ class Grain:
             return self.recrystalized_color
         raise Exception('Cell energy value ({}) not expected'.format(self.energy_value))
 
+    def nrg_color(self, min_energy, max_energy):
+        if self.energy_value == min_energy:
+            return color.BLUE500
+        if self.energy_value == max_energy:
+            return color.LIGHT_GREEN300
+        if self.energy_value == 1:
+            return color.WHITE
+        if self.lock_status is Grain.RECRYSTALIZED:
+            return self.recrystalized_color
+        raise Exception('Cell energy value ({}) not expected'.format(self.energy_value))
+
     @property
     def recrystalized_color(self):
         """
