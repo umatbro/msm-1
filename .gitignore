@@ -11,3 +11,4 @@ docs/_build
 !docs/*.png
 !docs/imp/*.png
 !docs/_static/*.png
+*.pickle

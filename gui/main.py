@@ -11,7 +11,7 @@ from ca.grain_field import GrainField, EnergyDistribution, FieldNotFilledExcepti
 from gui.components import InclusionWidget, GrainFieldSetterWidget, separator, ResolutionWidget, ProbabilityWidget, \
     BoundaryWidget, CA_METHOD, MC_METHOD, EnergyWidget
 from gui.utils import add_widgets_to_layout
-from files import export_text, export_image, import_text, import_img
+from files import export_text, export_image, import_text, import_img, export_pickle, import_pickle
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -178,9 +178,9 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         Import grain field from file
         """
-        src = QtWidgets.QFileDialog().getOpenFileName(self, 'Import field', filter='*.txt')[0]
+        src = QtWidgets.QFileDialog().getOpenFileName(self, 'Import field', filter='*.pickle')[0]
         if src:
-            self.grain_field = import_text(src)
+            self.grain_field = import_pickle(src)
         self.update_layout()
 
     def import_field_image(self):
@@ -192,10 +192,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def export_field(self):
         print('Export')
         file_dialog = QtWidgets.QFileDialog()
-        filename, extension = file_dialog.getSaveFileName(self, 'Export ', filter='*.txt')
+        filename, extension = file_dialog.getSaveFileName(self, 'Export ', filter='*.pickle')
 
         if filename:
-            export_text(self.grain_field, filename)
+            export_pickle(self.grain_field, filename)
 
         print(filename)
 

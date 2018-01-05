@@ -1,5 +1,6 @@
 from collections import namedtuple, defaultdict
 from PIL import Image
+import pickle
 
 from ca.grain_field import GrainField
 from ca.grain import Grain, GrainType
@@ -106,3 +107,26 @@ def import_img(source: str) -> GrainField:
         state_counter += 1
 
     return grain_field
+
+
+def export_pickle(grain_field: GrainField, file_path='field.pickle'):
+    """
+    Pickle grain field object and dump it to a given file.
+
+    :param grain_field: object to be serialized.
+    :param file_path: path to save data
+    """
+    with open(file_path, 'wb') as file:
+        pickle.Pickler(file).dump(grain_field)
+
+
+def import_pickle(source: str) -> GrainField:
+    """
+    :param source: path to source file
+    :return: GrainField object stored in pickle file
+    """
+    with open(source, 'rb') as file:
+        field = pickle.Unpickler(file).load()
+        if not isinstance(field, GrainField):
+            raise TypeError('Imported pickle has wrong type - GrainField expected, got {}'.format(type(field)))
+        return field
