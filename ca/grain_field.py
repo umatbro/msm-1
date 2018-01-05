@@ -10,6 +10,8 @@ from geometry import pixels as px
 from ca.grain import Grain, GrainType
 from ca.neighbourhood import decide_by_4_rules, Neighbours
 
+import um.utils as um_utils
+
 CA_METHOD = 'Cellular automata'
 MC_METHOD = 'Monte Carlo'
 
@@ -144,7 +146,7 @@ class GrainField:
             self[x - 1, y + 1],  # bottom-left
         )
 
-    def boundary_energy(self, x, y, state: int=None, add_energy: bool=False):
+    def boundary_energy(self, x, y, state: int = None, add_energy: bool = False):
         """
         Calculate boundary energy
 
@@ -231,17 +233,22 @@ class GrainField:
             if grain.lock_status is Grain.RECRYSTALIZED or grain.is_locked:
                 continue
             neighbours = self.moore_neighbourhood(x, y)
-            if not any([grain.lock_status is Grain.RECRYSTALIZED for grain in neighbours if grain is not Grain.OUT_OF_RANGE]):
+            if not any([grain.lock_status is Grain.RECRYSTALIZED for grain in neighbours if
+                        grain is not Grain.OUT_OF_RANGE]):
                 continue  # if there are no recrystalized grains in neighbourhood - just continue
+
+            candidate_grain = random.choice(
+                [neighbour for neighbour in neighbours if neighbour is not Grain.OUT_OF_RANGE
+                 and neighbour.lock_status is Grain.RECRYSTALIZED]
+            )
+
             # calculate energy before
             energy_before = self.boundary_energy(x, y, add_energy=True)
-            energy_after = self.boundary_energy(x, y, add_energy=False)
+            energy_after = self.boundary_energy(x, y, state=candidate_grain.state, add_energy=False)
 
-            if energy_after <= energy_before:
+            if energy_after <= energy_before:  # accept the change
                 # update state to the same as chosen one
-                chosen_grain = random.choice([neighbour for neighbour in neighbours if neighbour is not Grain.OUT_OF_RANGE
-                                             and neighbour.lock_status is Grain.RECRYSTALIZED])
-                grain.state = chosen_grain.state
+                grain.state = candidate_grain.state
                 grain.lock_status = Grain.RECRYSTALIZED
         return self
 
@@ -257,7 +264,7 @@ class GrainField:
     def display(self, screen, resolution, visualisation_type=FieldVisualisationType.NUCLEATION):
         rect = pygame.Rect(0, 0, resolution, resolution)
         max_energy = max([grain.energy_value for grain in self.grains])
-        min_energy = min([grain.energy_value for grain in self.grains if grain.energy_value > 0])
+        min_energy = max(min([grain.energy_value for grain in self.grains if grain.energy_value > 0]), 1)
         for grain, x, y in self.grains_and_coords:
             rect.x = x * resolution
             color = None
@@ -289,15 +296,23 @@ class GrainField:
 
         :param num_of_new_grains:
         :param on_boundaries: determine whether new grains will lay on grain boundaries
-        :return:
+        :return: self
         :raises ValueError: when sample size (new number of grains) is larger than number of boundary points
         """
+        # get the maximum state value that is currently present in the field,
+        # new grains will have states with higher numbers
+        max_state_value = max([max([grain.state for grain in self.grains]), 0])
         # choose random coords to add new grains
         for x, y in (random.sample(self.grains_boundaries_points, num_of_new_grains) if on_boundaries
         else random.sample(list(map(lambda item: (item[1], item[2]), self.grains_and_coords)), num_of_new_grains)):
             grain = self[x, y]
+            grain.state = max_state_value
             grain.energy_value = 0
             grain.lock_status = Grain.RECRYSTALIZED
+
+            max_state_value += 1
+
+        return self
 
     def add_inclusion(self, location, size, type='square'):
         """
@@ -375,7 +390,8 @@ class GrainField:
 
         return self
 
-    def distribute_energy(self, energy_distribution: EnergyDistribution=EnergyDistribution.HETEROGENOUS, energy_inside=2, energy_on_edges=5):
+    def distribute_energy(self, energy_distribution: EnergyDistribution = EnergyDistribution.HETEROGENOUS,
+                          energy_inside=2, energy_on_edges=5):
         """
         Distribute energy
 
