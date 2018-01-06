@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QRect
 from PyQt5.QtGui import QIntValidator
 from gui.utils import add_widgets_to_layout
 from enum import auto
-from ca.grain_field import CA_METHOD, MC_METHOD, EnergyDistribution
+from ca.grain_field import CA_METHOD, MC_METHOD, EnergyDistribution, NucleationModule
 
 
 class LabelLineEdit(QWidget):
@@ -225,9 +225,20 @@ class EnergyWidget(QWidget):
         self.energy_distribution = ComboBoxButton('Distribute energy', [
             distribution_type.value for distribution_type in EnergyDistribution.__members__.values()
         ], self)
+        # disable energy on edges when heterogeneous option is selected
+        self.energy_distribution.combo_box.activated[str].connect(lambda selected: self.energy_on_edges.setEnabled(
+            selected == EnergyDistribution.HETEROGENOUS.value
+        ))
         self.energy_inside = LabelSpinBox(self, 'Energy inside', 15)
         self.energy_on_edges = LabelSpinBox(self, 'Energy on edges', 15)
         self.nucleons_on_start = LabelSpinBox(self, 'Nucleons on start', 100)
+        self.nucleation_module = LabelComboBox(
+            self, 'Nucleation module',
+            options=[val.value for val in NucleationModule.__members__.values()]
+        )
+        self.nucleons_to_add = LabelSpinBox(self, 'Nucleons to add', 100)
+        self.after_iterations = LabelSpinBox(self, 'After how many iterations?', 50)
+        self.run_recrystalization_button = QPushButton('srxmc')
 
         # layout
         v_box = QtWidgets.QVBoxLayout(self)
@@ -236,6 +247,11 @@ class EnergyWidget(QWidget):
         v_box.addWidget(self.energy_inside)
         v_box.addWidget(self.energy_on_edges)
         v_box.addWidget(self.nucleons_on_start)
+        v_box.addWidget(self.nucleation_module)
+        v_box.addWidget(self.nucleons_to_add)
+        v_box.addWidget(self.after_iterations)
+        # v_box.addStretch(5)
+        v_box.addWidget(self.run_recrystalization_button)
         self.setLayout(v_box)
 
 

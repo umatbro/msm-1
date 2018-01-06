@@ -10,7 +10,6 @@ from geometry import pixels as px
 from ca.grain import Grain, GrainType
 from ca.neighbourhood import decide_by_4_rules, Neighbours
 
-import um.utils as um_utils
 
 CA_METHOD = 'Cellular automata'
 MC_METHOD = 'Monte Carlo'
@@ -31,6 +30,12 @@ class EnergyDistribution(Enum):
         return str(self.value)
 
 
+class NucleationModule(Enum):
+    SITE_SATURATED = 'Site saturated'  # constant from beginning
+    CONSTANT = 'Constant'  # constant number added after iterations
+    INCREASING = 'Increasing'  # increasing number
+
+
 class FieldNotFilledException(Exception):
     pass
 
@@ -47,6 +52,7 @@ class GrainField:
         self.field = [Grain() for y in range(self.height) for x in range(self.width)]
         self.field = np.reshape(np.array(self.field), (self.width, self.height))
         self.coords_list = [(x, y) for y in range(self.height) for x in range(self.width)]
+        self.iteration = 0
 
     @property
     def grains(self):
@@ -220,7 +226,7 @@ class GrainField:
 
         return self
 
-    def update_sxrmc(self, iteration=0):
+    def update_sxrmc(self, nucleation_module=NucleationModule.SITE_SATURATED):
         """
         Update field in terms of SXRMC.
 
@@ -253,6 +259,7 @@ class GrainField:
         return self
 
     def update(self, simulation_method=CA_METHOD, probability=100):
+        self.iteration += 1
         if simulation_method == CA_METHOD:
             return self.update_ca(probability)
         elif simulation_method == MC_METHOD:
@@ -290,9 +297,10 @@ class GrainField:
                 grain.type = grain_type
                 grain.prev_state = grain_state
 
-    def add_new_grains(self, num_of_new_grains, on_boundaries=True):
+    def add_recrystalized_grains(self, num_of_new_grains, on_boundaries=True):
         """
-        Add new grains with energy_value = 0
+        Add new grains with energy_value = 0.
+        Reset iteration amount to 0.
 
         :param num_of_new_grains:
         :param on_boundaries: determine whether new grains will lay on grain boundaries
@@ -311,6 +319,8 @@ class GrainField:
             grain.lock_status = Grain.RECRYSTALIZED
 
             max_state_value += 1
+
+        self.iteration = 0
 
         return self
 
@@ -366,7 +376,8 @@ class GrainField:
     def clear_field(self, dual_phase=False, clear_inclusions=False):
         """
         Set all cell states to empty.
-        Do not change state of inclusions and locked cells (by default)
+        Do not change state of inclusions and locked cells (by default).
+        Also set iteration amount to 0.
 
         :param clear_inclusions:
         :param dual_phase: if set to true, selected grains will be locked and set as dualphase
@@ -388,12 +399,14 @@ class GrainField:
                 # if dual_phase:
                 #     grain.state = Grain.DUAL_PHASE
 
+        self.iteration = 0
+
         return self
 
     def distribute_energy(self, energy_distribution: EnergyDistribution = EnergyDistribution.HETEROGENOUS,
                           energy_inside=2, energy_on_edges=5):
         """
-        Distribute energy
+        Distribute energy.
 
         :param energy_distribution: type of energy distribution.
         """

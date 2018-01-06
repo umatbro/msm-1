@@ -131,40 +131,6 @@ def run_field(
                 paused = True
 
 
-def run(
-        x_size=100,
-        y_size=100,
-        num_of_grains=70,
-        resolution=6,
-        probability=100,
-        num_of_inclusions=0,
-        inclusions_size=1,
-        type_of_inclusions='square',
-        paused=False
-):
-    """
-    Run pygame window with visualisation
-
-    :param x_size: number of columns
-    :param y_size: number of rows
-    :param num_of_grains: initial number of grains
-    :param probability: probability of inclusion (in percents)
-    :param resolution: length of square sides (in pixels)
-    :param num_of_inclusions: number of inclusions
-    :param inclusions_size: radius for circles, side length for squares
-    :param type_of_inclusions: either square or circle
-    :param paused: boolean indicating whether simulation will be paused on start
-    """
-
-    # field
-    grain_field = GrainField(x_size, y_size)
-    grain_field\
-        .random_inclusions(num_of_inclusions, inclusions_size, type_of_inclusions)\
-        .random_grains(num_of_grains)
-
-    return run_field(grain_field, resolution, probability, paused)
-
-
 def mouse2grain_coords(mpos, resolution):
     """Get mouse coords and convert to field coords based on given resolution"""
     mx, my = mpos
@@ -173,9 +139,9 @@ def mouse2grain_coords(mpos, resolution):
 
 if __name__ == '__main__':
     import os
-    from files import import_text
+    from files import import_text, import_pickle
     from ca.grain_field import SXRMC
-    field = import_text(os.path.join(os.getcwd(), 'example_fields', 'example1.txt'))
-    field.distribute_energy()
-    field.add_new_grains(10)
+    field = import_pickle(os.path.join(os.getcwd(), '..', 'example_fields', 'example.pickle'))
+    field.distribute_energy(energy_on_edges=5, energy_inside=2)
+    field.add_recrystalized_grains(10)
     run_field(field, resolution=6, simulation_method=SXRMC, paused=True)

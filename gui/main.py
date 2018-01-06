@@ -145,6 +145,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # setup input fields
         self.set_default_values()
 
+        # deactivate depreciated fields
+        for item in [self.boundaries, self.boundaries_button, self.dp_checkbox]:  # type: QtWidgets.QWidget
+            item.setEnabled(False)
+            item.setToolTip('This functionality is not supported in this version')
+
     def get_values(self):
         """
         Get values from GUI fields
