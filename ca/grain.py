@@ -97,7 +97,7 @@ class Grain:
         """
         :return: color for recrystalized grain (shades of black and white).
         """
-        return tuple([utils.constrain(7 * self.state, 255) for i in range(3)])
+        return tuple([utils.constrain(255 - 7 * self.state, 255) for i in range(3)])
 
     @property
     def can_be_modified(self) -> bool:
@@ -120,7 +120,11 @@ class Grain:
 
     @property
     def is_locked(self):
-        return self.lock_status < Grain.ALIVE
+        try:
+            return self.lock_status < Grain.ALIVE
+        except TypeError:  # self.lock_status is RECRYSTALIZED
+            if self.lock_status is Grain.RECRYSTALIZED:
+                return False
 
     def toggle_selected(self):
         self.lock_status = Grain.SELECTED if self.lock_status is Grain.ALIVE else Grain.ALIVE

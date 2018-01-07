@@ -7,9 +7,10 @@ from ca import visualisation, grain_field
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from ca.grain import Grain
-from ca.grain_field import GrainField, EnergyDistribution, FieldNotFilledException
+from ca.grain_field import GrainField, EnergyDistribution, FieldNotFilledException, SXRMC, CA_METHOD, MC_METHOD, \
+    NucleationModule
 from gui.components import InclusionWidget, GrainFieldSetterWidget, separator, ResolutionWidget, ProbabilityWidget, \
-    BoundaryWidget, CA_METHOD, MC_METHOD, EnergyWidget
+    BoundaryWidget, EnergyWidget
 from gui.utils import add_widgets_to_layout
 from files import export_text, export_image, import_text, import_img, export_pickle, import_pickle
 
@@ -132,9 +133,9 @@ class MainWindow(QtWidgets.QMainWindow):
         right_pane = QtWidgets.QWidget(central_wrapper)
         self.energy_widget = EnergyWidget(central_wrapper)
         self.energy_widget.energy_distribution.button.clicked.connect(self.distribute_energy_action)
+        self.energy_widget.run_recrystalization_button.clicked.connect(self.srxmc_visualaisation)
         v_box_r = QtWidgets.QVBoxLayout(right_pane)
         v_box_r.addWidget(self.energy_widget)
-        v_box_r.addStretch()  # so all items are aligned top
 
         h_box = QtWidgets.QHBoxLayout(central_wrapper)
         h_box.addWidget(left_pane)
@@ -156,10 +157,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         :return: namedtuple with: width, height, nucleon_amount, resolution
         """
-        Values = namedtuple('FieldValues', ['width', 'height', 'nucleon_amount', 'resolution', 'probability',
-                                            'inclusion_type', 'inclusion_amount', 'inclusion_size', 'dual_phase',
-                                            'new_amount_of_nuclei', 'boundaries', 'max_iterations', 'simulation_method',
-                                            'energy_inside', 'energy_on_edges', 'nucleons_on_start'])
+        Values = namedtuple('FieldValues', [
+            'width', 'height', 'nucleon_amount', 'resolution', 'probability',
+            'inclusion_type', 'inclusion_amount', 'inclusion_size', 'dual_phase',
+            'new_amount_of_nuclei', 'boundaries', 'max_iterations', 'simulation_method',
+            'energy_inside', 'energy_on_edges', 'nucleons_on_start', 'nucleation_module', 'nucleons_to_add',
+            'iteration_cycle',
+        ])
         return Values(
             width=self.grain_field_widget.x_input.value,
             height=self.grain_field_widget.y_input.value,
@@ -177,6 +181,9 @@ class MainWindow(QtWidgets.QMainWindow):
             energy_inside=self.energy_widget.energy_inside.value,
             energy_on_edges=self.energy_widget.energy_on_edges.value,
             nucleons_on_start=self.energy_widget.nucleons_on_start.value,
+            nucleation_module=self.energy_widget.nucleation_module.value,
+            nucleons_to_add=self.energy_widget.nucleons_to_add.value,
+            iteration_cycle=self.energy_widget.after_iterations.value,
         )
 
     def import_field(self):
@@ -270,40 +277,34 @@ class MainWindow(QtWidgets.QMainWindow):
     def run_visualisation(self):
         self.centralWidget().setEnabled(False)
         sleep(0.5)
-        try:
-            values = self.get_values()
-            self.hide()
-            pool = ThreadPool(processes=1)
 
-            if not self.grain_field:  # empty field - create new field
-                self.grain_field = GrainField(values.width, values.height)
-                self.grain_field.random_inclusions(values.inclusion_amount, values.inclusion_size,
-                                                   values.inclusion_type)
-                if values.simulation_method == CA_METHOD:
-                    self.grain_field.random_grains(values.nucleon_amount)
-                elif values.simulation_method == MC_METHOD:
-                    self.grain_field.fill_field_with_random_cells(values.nucleon_amount)
+        values = self.get_values()
+        self.hide()
+        pool = ThreadPool(processes=1)
 
-            async_result = pool.apply_async(func=visualisation.run_field, kwds={
-                'grain_field': self.grain_field,
-                'resolution': values.resolution,
-                'probability': values.probability,
-                'iterations_limit': values.max_iterations,
-                'simulation_method': values.simulation_method,
-            })
+        if not self.grain_field:  # empty field - create new field
+            self.grain_field = GrainField(values.width, values.height)
+            self.grain_field.random_inclusions(values.inclusion_amount, values.inclusion_size,
+                                               values.inclusion_type)
+            if values.simulation_method == CA_METHOD:
+                self.grain_field.random_grains(values.nucleon_amount)
+            elif values.simulation_method == MC_METHOD:
+                self.grain_field.fill_field_with_random_cells(values.nucleon_amount)
 
-            self.grain_field, self.selected_cells = async_result.get()
-            print(self.grain_field)
-            self.show()
-            self.update_layout()
-            self.update_status_bar()
-        except ValueError as e:
-            dialog = QtWidgets.QDialog()
-            dialog.setWindowTitle('Error')
-            layout = QtWidgets.QVBoxLayout(dialog)
-            label = QtWidgets.QLabel(str(e))
-            layout.addWidget(label)
-            dialog.exec_()
+        # async_result = pool.apply_async(func=visualisation.run_field, kwds={
+        #     'grain_field': self.grain_field,
+        #     'resolution': values.resolution,
+        #     'probability': values.probability,
+        #     'iterations_limit': values.max_iterations,
+        #     'simulation_method': values.simulation_method,
+        # })
+        visualisation.run_field(self.grain_field, values.resolution, probability=values.probability, iterations_limit=values.max_iterations,
+                                simulation_method=values.simulation_method)
+        # self.grain_field, self.selected_cells = async_result.get()
+        print(self.grain_field)
+        self.show()
+        self.update_layout()
+        self.update_status_bar()
 
         self.centralWidget().setEnabled(True)
 
@@ -319,6 +320,29 @@ class MainWindow(QtWidgets.QMainWindow):
         elif values.simulation_method == MC_METHOD:
             self.grain_field.fill_field_with_random_cells(values.new_amount_of_nuclei)
         self.run_visualisation()
+
+    def srxmc_visualaisation(self):
+        values = self.get_values()
+        self.hide()
+        update_function = lambda: self.grain_field.update_sxrmc(
+            nucleation_module=NucleationModule(values.nucleation_module),
+            iteration_cycle=values.iteration_cycle,
+            increment=values.nucleons_to_add
+        )
+        self.grain_field.add_recrystalized_grains(values.nucleons_on_start)
+        pool = ThreadPool(processes=1)
+        async_result = pool.apply_async(func=visualisation.run_field, kwds={
+            'grain_field': self.grain_field,
+            'resolution': values.resolution,
+            'probability': values.probability,
+            'iterations_limit': values.max_iterations,
+            'simulation_method': SXRMC,
+            'update_function': update_function,
+        })
+        self.grain_field, self.selected_cells = async_result.get()
+        self.update_layout()
+
+        self.show()
 
     def update_layout(self):
         if self.grain_field:

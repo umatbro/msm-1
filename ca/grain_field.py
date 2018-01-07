@@ -201,6 +201,7 @@ class GrainField:
             if de <= 0:
                 self[x, y].state = choice.state
 
+        self.iteration += 1
         return self
 
     def update_ca(self, probability=100):
@@ -224,14 +225,17 @@ class GrainField:
         for grain in self.grains:
             grain.prev_state = grain.state
 
+        self.iteration += 1
         return self
 
-    def update_sxrmc(self, nucleation_module=NucleationModule.SITE_SATURATED):
+    def update_sxrmc(self, nucleation_module=NucleationModule.SITE_SATURATED, iteration_cycle=0, increment=0):
         """
-        Update field in terms of SXRMC.
+        Update field in terms of SRXMC.
 
-        :param iteration:
-        :return:
+        :param nucleation_module: type of nucleation module
+        :param iteration_cycle: number of iterations after which new grains will be added
+        :param increment: amount of new grains that will be added
+        :return: self
         """
         np.random.shuffle(self.coords_list)
         for x, y in self.coords_list:
@@ -256,10 +260,21 @@ class GrainField:
                 # update state to the same as chosen one
                 grain.state = candidate_grain.state
                 grain.lock_status = Grain.RECRYSTALIZED
+
+        # do actions depending on nucleation module
+        if nucleation_module is not NucleationModule.SITE_SATURATED:
+            try:
+                if not self.iteration % iteration_cycle:  # the moment when we add new grains
+                    number_of_grains_to_add = increment * self.iteration//iteration_cycle\
+                        if nucleation_module is NucleationModule.INCREASING else increment
+                    self.add_recrystalized_grains(number_of_grains_to_add)
+            except ZeroDivisionError:  # iteration cycle is 0 - we won't be adding any new grains
+                pass
+
+        self.iteration += 1
         return self
 
     def update(self, simulation_method=CA_METHOD, probability=100):
-        self.iteration += 1
         if simulation_method == CA_METHOD:
             return self.update_ca(probability)
         elif simulation_method == MC_METHOD:
@@ -396,8 +411,6 @@ class GrainField:
         for grain in self.grains:
             if grain.lock_status is Grain.SELECTED:
                 grain.lock_status = Grain.LOCKED if not dual_phase else Grain.DUAL_PHASE
-                # if dual_phase:
-                #     grain.state = Grain.DUAL_PHASE
 
         self.iteration = 0
 
@@ -474,7 +487,9 @@ class GrainField:
             return self
         for grain in self.grains:
             if not grain.is_locked:
-                grain.state = random.randint(1, num_of_states)
+                val = random.randint(1, num_of_states)
+                grain.state = val
+                grain.prev_state = val
 
         return self
 

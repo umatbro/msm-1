@@ -250,7 +250,7 @@ class EnergyWidget(QWidget):
         v_box.addWidget(self.nucleation_module)
         v_box.addWidget(self.nucleons_to_add)
         v_box.addWidget(self.after_iterations)
-        # v_box.addStretch(5)
+        v_box.addStretch()
         v_box.addWidget(self.run_recrystalization_button)
         self.setLayout(v_box)
 

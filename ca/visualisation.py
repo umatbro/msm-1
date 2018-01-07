@@ -2,9 +2,8 @@ import itertools
 import pygame
 
 from ca.grain import Grain
-from ca.grain_field import GrainField, FieldVisualisationType
+from ca.grain_field import GrainField, FieldVisualisationType, NucleationModule, CA_METHOD, MC_METHOD, SXRMC
 from files import export_image, export_text, import_text
-from gui.components import CA_METHOD, MC_METHOD
 
 MAX_FRAMES = 60
 
@@ -16,6 +15,7 @@ def run_field(
         probability: int=100,
         iterations_limit: int=10,
         paused=False,
+        update_function=None,
 ):
     """
     Visualise grain field
@@ -26,9 +26,10 @@ def run_field(
     :param probability: probability used in ca method
     :param paused: whether simulation starts paused or not
     :param iterations_limit: number of iterations after which visualisation will pause
-    :param options: additional options in dictionary
+    :param update_function: custom function that can be provided to update grain field
     :return: grain field object after visualisation
     """
+    update_function = update_function if update_function else lambda: grain_field.update(simulation_method, probability)
     pygame.init()
 
     window_width = grain_field.width * resolution
@@ -44,7 +45,6 @@ def run_field(
 
     # selected cells
     selected_cells = {}
-    iterations = 0
     iterations_num_font = pygame.font.SysFont('monospace', 48 if resolution >= 6 else 24, bold=True)
 
     visualisation_type = FieldVisualisationType.NUCLEATION
@@ -63,8 +63,7 @@ def run_field(
                 # sys.exit(0)
             elif event.type is pygame.KEYDOWN:
                 if event.key is pygame.K_SPACE:
-                    grain_field.update(simulation_method, probability)
-                    iterations += 1
+                    update_function()
                 elif event.key is pygame.K_TAB:
                     visualisation_type = next(visualisation_type_toggler)
                 elif event.key is pygame.K_e:
@@ -126,8 +125,11 @@ def run_field(
         pygame.display.update()
 
         if not paused:
-            grain_field.update(simulation_method, probability)
+            update_function()
+            # grain_field.update(simulation_method, probability)
             if simulation_method == CA_METHOD and grain_field.full:
+                paused = True
+            if simulation_method == SXRMC and all([grain.energy_value == 0 for grain in grain_field.grains]):
                 paused = True
 
 
@@ -144,4 +146,11 @@ if __name__ == '__main__':
     field = import_pickle(os.path.join(os.getcwd(), '..', 'example_fields', 'dp_example.pickle'))
     field.distribute_energy(energy_on_edges=5, energy_inside=2)
     field.add_recrystalized_grains(10)
-    run_field(field, resolution=6, simulation_method=SXRMC, paused=True)
+    update_function = lambda: field.update_sxrmc(
+        nucleation_module=NucleationModule.SITE_SATURATED,
+        iteration_cycle=5,
+        increment=3
+    )
+    gf=GrainField(100, 100)
+    gf.random_grains(10)
+    run_field(gf, resolution=6, iterations_limit=10, probability=50, simulation_method=CA_METHOD, paused=True,)# update_function=update_function)
