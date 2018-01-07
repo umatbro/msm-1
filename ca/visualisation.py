@@ -2,7 +2,7 @@ import itertools
 import pygame
 
 from ca.grain import Grain
-from ca.grain_field import random_field, GrainField, FieldVisualisationType
+from ca.grain_field import GrainField, FieldVisualisationType
 from files import export_image, export_text, import_text
 from gui.components import CA_METHOD, MC_METHOD
 
@@ -26,6 +26,7 @@ def run_field(
     :param probability: probability used in ca method
     :param paused: whether simulation starts paused or not
     :param iterations_limit: number of iterations after which visualisation will pause
+    :param options: additional options in dictionary
     :return: grain field object after visualisation
     """
     pygame.init()
@@ -115,10 +116,10 @@ def run_field(
 
         # m_pos = pygame.mouse.get_pos()
         # display iterations
-        label = iterations_num_font.render('{}'.format(iterations), 1, (0, 0, 0))
+        label = iterations_num_font.render('{}'.format(grain_field.iteration), 1, (0, 0, 0))
 
-        if iterations is iterations_limit:
-            paused = True if iterations is not 0 else False
+        if grain_field.iteration == iterations_limit:
+            paused = True if not grain_field.iteration == 0 else False
 
         grain_field.display(screen, resolution, visualisation_type)
         screen.blit(label, (window_width - 80, window_height - 80))
@@ -126,7 +127,6 @@ def run_field(
 
         if not paused:
             grain_field.update(simulation_method, probability)
-            iterations += 1
             if simulation_method == CA_METHOD and grain_field.full:
                 paused = True
 
@@ -141,7 +141,7 @@ if __name__ == '__main__':
     import os
     from files import import_text, import_pickle
     from ca.grain_field import SXRMC
-    field = import_pickle(os.path.join(os.getcwd(), '..', 'example_fields', 'example.pickle'))
+    field = import_pickle(os.path.join(os.getcwd(), '..', 'example_fields', 'dp_example.pickle'))
     field.distribute_energy(energy_on_edges=5, energy_inside=2)
     field.add_recrystalized_grains(10)
     run_field(field, resolution=6, simulation_method=SXRMC, paused=True)
