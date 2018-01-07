@@ -29,7 +29,8 @@ def run_field(
     :param update_function: custom function that can be provided to update grain field
     :return: grain field object after visualisation
     """
-    update_function = update_function if update_function else lambda: grain_field.update(simulation_method, probability)
+    if update_function is None:
+        update_function = lambda: grain_field.update(simulation_method, probability)
     pygame.init()
 
     window_width = grain_field.width * resolution
@@ -99,13 +100,15 @@ def run_field(
                     state = grain.prev_state
                 elif simulation_method == MC_METHOD:
                     state = grain.state
+                else:
+                    state = grain.state
 
                 if grain.lock_status is Grain.SELECTED:
                     # unlock it then
                     for cell in selected_cells[state]:
                         cell.lock_status = Grain.ALIVE
                     del selected_cells[state]
-                elif state is not Grain.INCLUSION and not grain.is_locked:
+                elif state is not Grain.INCLUSION and not grain.is_locked or grain.lock_status is not Grain.RECRYSTALIZED:
                     selected_cells[state] = grain_field.cells_of_state(state)
                     for cell in selected_cells[state]:  # type: Grain
                         cell.lock_status = Grain.SELECTED
@@ -142,15 +145,14 @@ def mouse2grain_coords(mpos, resolution):
 if __name__ == '__main__':
     import os
     from files import import_text, import_pickle
-    from ca.grain_field import SXRMC
-    field = import_pickle(os.path.join(os.getcwd(), '..', 'example_fields', 'dp_example.pickle'))
+    field = import_pickle(os.path.join(os.getcwd(), '..', 'example_fields', 'mc_300x300.pickle'))
     field.distribute_energy(energy_on_edges=5, energy_inside=2)
     field.add_recrystalized_grains(10)
     update_function = lambda: field.update_sxrmc(
-        nucleation_module=NucleationModule.SITE_SATURATED,
+        nucleation_module=NucleationModule.INCREASING,
         iteration_cycle=5,
-        increment=3
+        increment=10
     )
     gf=GrainField(100, 100)
     gf.random_grains(10)
-    run_field(gf, resolution=6, iterations_limit=10, probability=50, simulation_method=CA_METHOD, paused=True,)# update_function=update_function)
+    run_field(field, resolution=2, iterations_limit=10, probability=50, simulation_method=SXRMC, paused=True, update_function=update_function)

@@ -10,7 +10,6 @@ from geometry import pixels as px
 from ca.grain import Grain, GrainType
 from ca.neighbourhood import decide_by_4_rules, Neighbours
 
-
 CA_METHOD = 'Cellular automata'
 MC_METHOD = 'Monte Carlo'
 
@@ -87,6 +86,9 @@ class GrainField:
         result = []
         already_in = set()
         for grain, x, y in self.grains_and_coords:
+            # if grain.lock_status is Grain.RECRYSTALIZED:
+            if grain.energy_value == 0 or grain.is_locked:
+                continue
             if any([neighbour.state != grain.state and neighbour not in already_in
                     for neighbour in self.moore_neighbourhood(x, y) if neighbour is not Grain.OUT_OF_RANGE]):
                 result.append((x, y))
@@ -265,7 +267,7 @@ class GrainField:
         if nucleation_module is not NucleationModule.SITE_SATURATED:
             try:
                 if not self.iteration % iteration_cycle:  # the moment when we add new grains
-                    number_of_grains_to_add = increment * self.iteration//iteration_cycle\
+                    number_of_grains_to_add = increment * self.iteration // iteration_cycle \
                         if nucleation_module is NucleationModule.INCREASING else increment
                     self.add_recrystalized_grains(number_of_grains_to_add)
             except ZeroDivisionError:  # iteration cycle is 0 - we won't be adding any new grains
@@ -286,7 +288,10 @@ class GrainField:
     def display(self, screen, resolution, visualisation_type=FieldVisualisationType.NUCLEATION):
         rect = pygame.Rect(0, 0, resolution, resolution)
         max_energy = max([grain.energy_value for grain in self.grains])
-        min_energy = max(min([grain.energy_value for grain in self.grains if grain.energy_value > 0]), 1)
+        try:
+            min_energy = max(min([grain.energy_value for grain in self.grains if grain.energy_value > 0]), 1)
+        except ValueError:  # all grains have energy = 0
+            min_energy = 1
         for grain, x, y in self.grains_and_coords:
             rect.x = x * resolution
             color = None
@@ -322,18 +327,30 @@ class GrainField:
         :return: self
         :raises ValueError: when sample size (new number of grains) is larger than number of boundary points
         """
+        if all([grain.lock_status is not Grain.ALIVE for grain in self.grains]):
+            return self
         # get the maximum state value that is currently present in the field,
         # new grains will have states with higher numbers
         max_state_value = max([max([grain.state for grain in self.grains]), 0])
-        # choose random coords to add new grains
-        for x, y in (random.sample(self.grains_boundaries_points, num_of_new_grains) if on_boundaries
-        else random.sample(list(map(lambda item: (item[1], item[2]), self.grains_and_coords)), num_of_new_grains)):
-            grain = self[x, y]
-            grain.state = max_state_value
-            grain.energy_value = 0
-            grain.lock_status = Grain.RECRYSTALIZED
+        max_energy = max([grain.energy_value for grain in self.grains])
+        try:
+            grains_to_change = random.sample(
+                [(x, y) for grain, x, y in self.grains_and_coords if grain.energy_value == max_energy],
+                # self.grains_boundaries_points,
+                num_of_new_grains
+            ) if on_boundaries else \
+                random.sample(list(map(lambda item: (item[1], item[2]), self.grains_and_coords)), num_of_new_grains)
+        except ValueError:  # sample size is bigger than population
+            pass
+        else:
+            # choose random coords to add new grains
+            for x, y in grains_to_change:
+                grain = self[x, y]
+                grain.state = max_state_value
+                grain.energy_value = 0
+                grain.lock_status = Grain.RECRYSTALIZED
 
-            max_state_value += 1
+                max_state_value += 1
 
         self.iteration = 0
 
