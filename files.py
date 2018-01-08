@@ -116,6 +116,8 @@ def export_pickle(grain_field: GrainField, file_path='field.pickle'):
     :param grain_field: object to be serialized.
     :param file_path: path to save data
     """
+    if not file_path.endswith('.pickle'):
+        file_path += '.pickle'
     with open(file_path, 'wb') as file:
         pickle.Pickler(file).dump(grain_field)
 

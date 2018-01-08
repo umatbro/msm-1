@@ -227,7 +227,7 @@ class EnergyWidget(QWidget):
         ], self)
         # disable energy on edges when heterogeneous option is selected
         self.energy_distribution.combo_box.activated[str].connect(lambda selected: self.energy_on_edges.setEnabled(
-            selected == EnergyDistribution.HETEROGENOUS.value
+            selected == EnergyDistribution.HETEROGENEOUS.value
         ))
         self.energy_inside = LabelSpinBox(self, 'Energy inside', 15)
         self.energy_on_edges = LabelSpinBox(self, 'Energy on edges', 15)

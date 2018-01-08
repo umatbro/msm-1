@@ -22,8 +22,8 @@ class FieldVisualisationType(Enum):
 
 
 class EnergyDistribution(Enum):
-    HETEROGENOUS = 'heterogenous'
-    HOMOGENOUS = 'homogenous'
+    HETEROGENEOUS = 'heterogeneous'
+    HOMOGENEOUS = 'homogeneous'
 
     def __str__(self):
         return str(self.value)
@@ -433,7 +433,7 @@ class GrainField:
 
         return self
 
-    def distribute_energy(self, energy_distribution: EnergyDistribution = EnergyDistribution.HETEROGENOUS,
+    def distribute_energy(self, energy_distribution: EnergyDistribution = EnergyDistribution.HETEROGENEOUS,
                           energy_inside=2, energy_on_edges=5):
         """
         Distribute energy.
@@ -442,10 +442,10 @@ class GrainField:
         """
         if not self.full:
             raise FieldNotFilledException('Could not distribute energy. Field is not fully filled.')
-        if energy_distribution is EnergyDistribution.HOMOGENOUS:
+        if energy_distribution is EnergyDistribution.HOMOGENEOUS:
             for grain in self.grains:
                 grain.energy_value = energy_inside
-        elif energy_distribution is EnergyDistribution.HETEROGENOUS:
+        elif energy_distribution is EnergyDistribution.HETEROGENEOUS:
             for grain in self.grains:
                 grain.energy_value = energy_inside
             for x, y in self.grains_boundaries_points:
