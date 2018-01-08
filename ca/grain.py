@@ -97,7 +97,7 @@ class Grain:
         """
         :return: color for recrystalized grain (shades of black and white).
         """
-        return tuple([utils.constrain((255 - 7 * self.state) % 255, 200, 40) for i in range(3)])
+        return tuple([utils.constrain((207 - 7 * self.state) % 200, 200, 40) for i in range(3)])
 
     @property
     def can_be_modified(self) -> bool:
