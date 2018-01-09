@@ -58,13 +58,7 @@ class GrainField:
         """
         :return: all grains in the field
         """
-        grains = []
-        x_size, y_size = self.field.shape
-        for x in range(x_size):
-            for y in range(y_size):
-                grains.append(self[x, y])
-
-        return grains
+        return self.field.flatten('C')
 
     @property
     def grains_and_coords(self):
