@@ -9,7 +9,7 @@ Jinja2==2.10
 MarkupSafe==1.0
 numpy==1.13.3
 olefile==0.44
-Pillow==4.3.0
+Pillow==6.2.0
 pygame==1.9.3
 Pygments==2.2.0
 PyQt5==5.9
